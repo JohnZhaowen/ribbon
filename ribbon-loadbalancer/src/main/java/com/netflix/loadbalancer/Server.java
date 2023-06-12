@@ -22,6 +22,7 @@ import com.netflix.util.Pair;
 /**
  * Class that represents a typical Server (or an addressable Node) i.e. a
  * Host:port identifier
+ * 代表一个服务
  * 
  * @author stonse
  * 

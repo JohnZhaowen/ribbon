@@ -52,6 +52,8 @@ import java.util.concurrent.TimeUnit;
  * determines the loadbalacing strategy
  * 
  * @author stonse
+ *
+ * 统计信息汇总类
  * 
  */
 public class LoadBalancerStats implements IClientConfigAware {

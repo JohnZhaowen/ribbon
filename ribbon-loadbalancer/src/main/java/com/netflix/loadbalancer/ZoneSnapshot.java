@@ -21,6 +21,8 @@ package com.netflix.loadbalancer;
  * Captures the metrics on a Per Zone basis (Zone is modeled after the Amazon Availability Zone)
  * @author awang
  *
+ * 快照
+ *
  */
 public class ZoneSnapshot {
     final int instanceCount;

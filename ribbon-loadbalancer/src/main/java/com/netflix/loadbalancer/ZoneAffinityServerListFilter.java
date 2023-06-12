@@ -42,6 +42,8 @@ import java.util.List;
  * 
  * @author stonse
  *
+ * 具有Zone粘滞性的服务过滤器
+ *
  */
 public class ZoneAffinityServerListFilter<T extends Server> extends
         AbstractServerListFilter<T> implements IClientConfigAware {

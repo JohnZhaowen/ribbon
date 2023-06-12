@@ -73,11 +73,9 @@ public class BaseLoadBalancer extends AbstractLoadBalancer implements
     protected IPing ping = null;
 
     @Monitor(name = PREFIX + "AllServerList", type = DataSourceType.INFORMATIONAL)
-    protected volatile List<Server> allServerList = Collections
-            .synchronizedList(new ArrayList<Server>());
+    protected volatile List<Server> allServerList = Collections.synchronizedList(new ArrayList<Server>());
     @Monitor(name = PREFIX + "UpServerList", type = DataSourceType.INFORMATIONAL)
-    protected volatile List<Server> upServerList = Collections
-            .synchronizedList(new ArrayList<Server>());
+    protected volatile List<Server> upServerList = Collections.synchronizedList(new ArrayList<Server>());
 
     protected ReadWriteLock allServerLock = new ReentrantReadWriteLock();
     protected ReadWriteLock upServerLock = new ReentrantReadWriteLock();
@@ -87,7 +85,6 @@ public class BaseLoadBalancer extends AbstractLoadBalancer implements
     protected Timer lbTimer = null;
     protected int pingIntervalSeconds = 10;
     protected int maxTotalPingTimeSeconds = 5;
-    protected Comparator<Server> serverComparator = new ServerComparator();
 
     protected AtomicBoolean pingInProgress = new AtomicBoolean(false);
 
@@ -270,8 +267,7 @@ public class BaseLoadBalancer extends AbstractLoadBalancer implements
         if (lbTimer != null) {
             lbTimer.cancel();
         }
-        lbTimer = new ShutdownEnabledTimer("NFLoadBalancer-PingTimer-" + name,
-                true);
+        lbTimer = new ShutdownEnabledTimer("NFLoadBalancer-PingTimer-" + name,true);
         lbTimer.schedule(new PingTask(), 0, pingIntervalSeconds * 1000);
         forceQuickPing();
     }
@@ -886,6 +882,13 @@ public class BaseLoadBalancer extends AbstractLoadBalancer implements
      */
     private static class SerialPingStrategy implements IPingStrategy {
 
+
+        /**
+         * 遍历ping每个server
+         * @param ping ping的方式
+         * @param servers 需要ping的server列表
+         * @return 各个server是否能ping成功
+         */
         @Override
         public boolean[] pingServers(IPing ping, Server[] servers) {
             int numCandidates = servers.length;
@@ -896,18 +899,6 @@ public class BaseLoadBalancer extends AbstractLoadBalancer implements
             for (int i = 0; i < numCandidates; i++) {
                 results[i] = false; /* Default answer is DEAD. */
                 try {
-                    // NOTE: IFF we were doing a real ping
-                    // assuming we had a large set of servers (say 15)
-                    // the logic below will run them serially
-                    // hence taking 15 times the amount of time it takes
-                    // to ping each server
-                    // A better method would be to put this in an executor
-                    // pool
-                    // But, at the time of this writing, we dont REALLY
-                    // use a Real Ping (its mostly in memory eureka call)
-                    // hence we can afford to simplify this design and run
-                    // this
-                    // serially
                     if (ping != null) {
                         results[i] = ping.isAlive(servers[i]);
                     }

@@ -41,6 +41,8 @@ public class RandomRule extends AbstractLoadBalancerRule {
         }
         Server server = null;
 
+
+        //对应的server需要存在，并且是active状态
         while (server == null) {
             if (Thread.interrupted()) {
                 return null;
@@ -71,10 +73,10 @@ public class RandomRule extends AbstractLoadBalancerRule {
             }
 
             if (server.isAlive()) {
-                return (server);
+                return server;
             }
 
-            // Shouldn't actually happen.. but must be transient or a bug.
+            // Shouldn't actually happen... but must be transient or a bug.
             server = null;
             Thread.yield();
         }
@@ -84,6 +86,7 @@ public class RandomRule extends AbstractLoadBalancerRule {
     }
 
     protected int chooseRandomInt(int serverCount) {
+        //获取serverCount范围内的随机值
         return ThreadLocalRandom.current().nextInt(serverCount);
     }
 

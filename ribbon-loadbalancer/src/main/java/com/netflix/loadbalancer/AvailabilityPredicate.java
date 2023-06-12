@@ -28,6 +28,7 @@ import javax.annotation.Nullable;
 /**
  * Predicate with the logic of filtering out circuit breaker tripped servers and servers 
  * with too many concurrent connections from this client.
+ * 可用的预测器
  * 
  * @author awang
  *

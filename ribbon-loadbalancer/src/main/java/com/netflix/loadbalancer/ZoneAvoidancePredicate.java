@@ -31,7 +31,7 @@ import java.util.Set;
 /**
  * A server predicate that filters out all servers in a worst zone if the aggregated metric for that zone reaches a threshold.
  * The logic to determine the worst zone is described in class {@link ZoneAwareLoadBalancer}.  
- * 
+ * 排除特定的zone
  * @author awang
  *
  */

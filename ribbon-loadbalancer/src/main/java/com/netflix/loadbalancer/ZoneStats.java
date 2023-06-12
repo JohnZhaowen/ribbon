@@ -25,6 +25,8 @@ import com.netflix.servo.monitor.Monitors;
 /**
  * Class that stores Statistics per Zone (where Zone is typically a Amazon
  * Availability Zone)
+ *
+ * zone的统计信息，基本上就是LoadBalancerStats的子域
  * 
  * @author awang
  * 

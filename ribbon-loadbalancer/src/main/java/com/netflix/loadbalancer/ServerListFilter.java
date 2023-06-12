@@ -24,6 +24,8 @@ import java.util.List;
  * List of candidate servers with desirable characteristics.
  * 
  * @author stonse
+ *
+ * 服务列表过滤器
  * 
  * @param <T>
  */

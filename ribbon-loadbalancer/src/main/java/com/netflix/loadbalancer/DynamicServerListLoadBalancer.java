@@ -40,6 +40,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * meet the desired criteria.
  * 
  * @author stonse
+ * 动态服务列表负载均衡
  * 
  */
 public class DynamicServerListLoadBalancer<T extends Server> extends BaseLoadBalancer {

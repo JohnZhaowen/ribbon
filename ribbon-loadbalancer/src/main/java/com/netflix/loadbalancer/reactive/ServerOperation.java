@@ -17,10 +17,9 @@
  */
 package com.netflix.loadbalancer.reactive;
 
+import com.netflix.loadbalancer.Server;
 import rx.Observable;
 import rx.functions.Func1;
-
-import com.netflix.loadbalancer.Server;
 
 /**
  * Provide the {@link rx.Observable} for a specified server. Used by {@link com.netflix.loadbalancer.reactive.LoadBalancerCommand}

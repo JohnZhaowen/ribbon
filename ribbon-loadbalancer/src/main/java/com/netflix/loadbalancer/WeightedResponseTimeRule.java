@@ -66,6 +66,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * When there is not enough statistics gathered for the servers, this rule
  * will fall back to use {@link RoundRobinRule}. 
  * @author stonse
+ *
+ * 根据响应时间来选择
  */
 public class WeightedResponseTimeRule extends RoundRobinRule {
 
@@ -87,7 +89,8 @@ public class WeightedResponseTimeRule extends RoundRobinRule {
     };
     
     public static final int DEFAULT_TIMER_INTERVAL = 30 * 1000;
-    
+
+    //30s
     private int serverWeightTaskTimerInterval = DEFAULT_TIMER_INTERVAL;
 
     private static final Logger logger = LoggerFactory.getLogger(WeightedResponseTimeRule.class);

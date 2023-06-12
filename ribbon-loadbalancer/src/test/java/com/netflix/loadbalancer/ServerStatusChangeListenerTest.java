@@ -58,12 +58,7 @@ public class ServerStatusChangeListenerTest {
         lb = new NoPingTaskLoadBalancer();
         lb.setServersList(asList(server1, server2));
         serversReceivedByListener = new AtomicReference<List<Server>>();
-        lb.addServerStatusChangeListener(new ServerStatusChangeListener() {
-            @Override
-            public void serverStatusChanged(final Collection<Server> servers) {
-                serversReceivedByListener.set(new ArrayList<Server>(servers));
-            }
-        });
+        lb.addServerStatusChangeListener(servers -> serversReceivedByListener.set(new ArrayList<>(servers)));
     }
 
     @Test

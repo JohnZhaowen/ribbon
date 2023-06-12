@@ -23,6 +23,7 @@ package com.netflix.loadbalancer;
  * Round Robin, Response Time based etc.
  * 
  * @author stonse
+ * 代表根据负载均衡器来选择特定服务的一个规则
  * 
  */
 public interface IRule{

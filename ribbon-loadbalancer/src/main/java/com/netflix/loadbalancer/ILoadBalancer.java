@@ -24,6 +24,8 @@ import java.util.List;
  * loadbalancer minimally need a set of servers to loadbalance for, a method to
  * mark a particular server to be out of rotation and a call that will choose a
  * server from the existing list of server.
+ * 维护服务列表
+ * 选择其中一个server进行rpc
  * 
  * @author stonse
  * 

@@ -26,6 +26,9 @@ import com.netflix.client.IClientConfigAware;
  */
 public abstract class AbstractLoadBalancerRule implements IRule, IClientConfigAware {
 
+    /**
+     * 核心属性
+     */
     private ILoadBalancer lb;
         
     @Override

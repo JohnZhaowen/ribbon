@@ -193,16 +193,13 @@ public abstract class LoadBalancingRxClient<I, O, T extends RxClient<I, O>> impl
             return;
         }
         
-        ((BaseLoadBalancer) lbContext.getLoadBalancer()).addServerListChangeListener(new ServerListChangeListener() {
-            @Override
-            public void serverListChanged(List<Server> oldList, List<Server> newList) {
-                Set<Server> removedServers = new HashSet<Server>(oldList);
-                removedServers.removeAll(newList);
-                for (Server server: rxClientCache.keySet()) {
-                    if (removedServers.contains(server)) {
-                        // this server is no longer in UP status
-                        removeClient(server);
-                    }
+        ((BaseLoadBalancer) lbContext.getLoadBalancer()).addServerListChangeListener((oldList, newList) -> {
+            Set<Server> removedServers = new HashSet<>(oldList);
+            removedServers.removeAll(newList);
+            for (Server server: rxClientCache.keySet()) {
+                if (removedServers.contains(server)) {
+                    // this server is no longer in UP status
+                    removeClient(server);
                 }
             }
         });

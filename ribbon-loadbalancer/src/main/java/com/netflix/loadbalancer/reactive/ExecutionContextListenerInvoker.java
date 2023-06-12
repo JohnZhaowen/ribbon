@@ -89,10 +89,9 @@ public class ExecutionContextListenerInvoker<I, O> {
 
     /**
      * Called when a server is chosen and the request is going to be executed on the server.
-     *
      */
     public void onStartWithServer(ExecutionContext<I> context, ExecutionInfo info) {
-        for (ExecutionListener<I, O> listener: listeners) {
+        for (ExecutionListener<I, O> listener : listeners) {
             try {
                 if (!isListenerDisabled(listener)) {
                     listener.onStartWithServer(context.getChildContext(listener), info);
@@ -116,7 +115,7 @@ public class ExecutionContextListenerInvoker<I, O> {
      * @param exception Exception received
      */
     public void onExceptionWithServer(ExecutionContext<I> context, Throwable exception, ExecutionInfo info) {
-        for (ExecutionListener<I, O> listener: listeners) {
+        for (ExecutionListener<I, O> listener : listeners) {
             try {
                 if (!isListenerDisabled(listener)) {
                     listener.onExceptionWithServer(context.getChildContext(listener), exception, info);
@@ -137,7 +136,7 @@ public class ExecutionContextListenerInvoker<I, O> {
      * @param response Object received from the execution
      */
     public void onExecutionSuccess(ExecutionContext<I> context, O response, ExecutionInfo info) {
-        for (ExecutionListener<I, O> listener: listeners) {
+        for (ExecutionListener<I, O> listener : listeners) {
             try {
                 if (!isListenerDisabled(listener)) {
                     listener.onExecutionSuccess(context.getChildContext(listener), response, info);
@@ -158,7 +157,7 @@ public class ExecutionContextListenerInvoker<I, O> {
      * @param finalException Final exception received.
      */
     public void onExecutionFailed(ExecutionContext<I> context, Throwable finalException, ExecutionInfo info) {
-        for (ExecutionListener<I, O> listener: listeners) {
+        for (ExecutionListener<I, O> listener : listeners) {
             try {
                 if (!isListenerDisabled(listener)) {
                     listener.onExecutionFailed(context.getChildContext(listener), finalException, info);

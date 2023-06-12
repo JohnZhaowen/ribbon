@@ -26,6 +26,8 @@ import java.util.concurrent.atomic.AtomicLong;
  * Note that when a cache refreshed notification is received, the actual update on the serverList is
  * done on a separate scheduler as the notification is delivered on an eurekaClient thread.
  *
+ * 通过注册中心通知来更新服务列表
+ *
  * @author David Liu
  */
 public class EurekaNotificationServerListUpdater implements ServerListUpdater {

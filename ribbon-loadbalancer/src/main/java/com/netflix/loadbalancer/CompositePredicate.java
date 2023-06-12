@@ -32,7 +32,9 @@ import com.google.common.collect.Lists;
  * It also has the functionality of "fallback" to one of more different predicates.
  * If the primary predicate yield too few filtered servers from the {@link #getEligibleServers(List, Object)}
  * API, it will try the fallback predicates one by one, until the number of filtered servers
- * exceeds certain number threshold or percentage threshold. 
+ * exceeds certain number threshold or percentage threshold.
+ *
+ * 符合预测器
  * 
  * @author awang
  *

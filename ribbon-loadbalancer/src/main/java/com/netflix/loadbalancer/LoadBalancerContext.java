@@ -39,7 +39,7 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * A class contains APIs intended to be used be load balancing client which is subclass of this class.
- * 
+ * 负载均衡上下文
  * @author awang
  */
 public class LoadBalancerContext implements IClientConfigAware {

@@ -41,6 +41,8 @@ import java.io.IOException;
  * HealthChecks.
  * 
  * Choose your Ping based on your needs.
+ *
+ * 根据url去ping，返回200则说明server可用，反则不可用
  * 
  * @author stonse
  * 

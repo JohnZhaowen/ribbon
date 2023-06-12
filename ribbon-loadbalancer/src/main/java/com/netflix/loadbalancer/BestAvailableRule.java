@@ -28,6 +28,12 @@ import java.util.List;
  * concurrent requests among a small number of servers. Also, each client will get a random list of 
  * servers which avoids the problem that one server with the lowest concurrent requests is 
  * chosen by a large number of clients and immediately gets overwhelmed.
+ *
+ * IRule: 最终的目的是选择出一个特定的服务
+ * loadBalancer: 负载均衡器，含有服务列表，以及所有服务的统计信息
+ * stats: 服务的统计信息
+ *
+ * IRule包含loadBalancer，loadBalancer包含servers和stats
  * 
  * @author awang
  *
@@ -41,20 +47,36 @@ public class BestAvailableRule extends ClientConfigEnabledRoundRobinRule {
         if (loadBalancerStats == null) {
             return super.choose(key);
         }
+        //获取所有的服务列表
         List<Server> serverList = getLoadBalancer().getAllServers();
+
+        //初始值设置为int的最大值
         int minimalConcurrentConnections = Integer.MAX_VALUE;
         long currentTime = System.currentTimeMillis();
         Server chosen = null;
+
+        //遍历所特有服务
         for (Server server: serverList) {
+            //获取服务的统计信息
             ServerStats serverStats = loadBalancerStats.getSingleServerStat(server);
+
+            //如果服务没有熔断
             if (!serverStats.isCircuitBreakerTripped(currentTime)) {
+
+                //获取服务当前的连接数
                 int concurrentConnections = serverStats.getActiveRequestsCount(currentTime);
+
+                //如果当前服务的连接数小于上一次遍历的服务的连接数（如果没有上一次，则与int最大值比较），这个if分支可以选出当前连接数最小的服务
                 if (concurrentConnections < minimalConcurrentConnections) {
+                    //重新赋值，使用较小的连接数赋值
                     minimalConcurrentConnections = concurrentConnections;
+                    //选出当前连接数最小的服务
                     chosen = server;
                 }
             }
         }
+
+        //如果所有服务都被熔断，则退化为轮询策略
         if (chosen == null) {
             return super.choose(key);
         } else {

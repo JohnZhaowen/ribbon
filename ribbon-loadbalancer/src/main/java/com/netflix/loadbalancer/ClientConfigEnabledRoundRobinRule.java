@@ -44,6 +44,7 @@ public class ClientConfigEnabledRoundRobinRule extends AbstractLoadBalancerRule 
     @Override
     public Server choose(Object key) {
         if (roundRobinRule != null) {
+            //轮询策略
             return roundRobinRule.choose(key);
         } else {
             throw new IllegalArgumentException(

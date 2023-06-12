@@ -4,6 +4,8 @@ package com.netflix.loadbalancer;
  * strategy for {@link com.netflix.loadbalancer.DynamicServerListLoadBalancer} to use for different ways
  * of doing dynamic server list updates.
  *
+ * 服务列表更新器
+ *
  * @author David Liu
  */
 public interface ServerListUpdater {

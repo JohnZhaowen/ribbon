@@ -34,7 +34,9 @@ import com.netflix.client.config.IClientConfig;
  * A basic building block for server filtering logic which can be used in rules and server list filters.
  * The input object of the predicate is {@link PredicateKey}, which has Server and load balancer key
  * information. Therefore, it is possible to develop logic to filter servers by both Server and load balancer
- * key or either one of them. 
+ * key or either one of them.
+ *
+ * 抽象类
  * 
  * @author awang
  *
@@ -48,12 +50,7 @@ public abstract class AbstractServerPredicate implements Predicate<PredicateKey>
     
     private final AtomicInteger nextIndex = new AtomicInteger();
 
-    private final Predicate<Server> serverOnlyPredicate =  new Predicate<Server>() {
-        @Override
-        public boolean apply(@Nullable Server input) {                    
-            return AbstractServerPredicate.this.apply(new PredicateKey(input));
-        }
-    };
+    private final Predicate<Server> serverOnlyPredicate = input -> AbstractServerPredicate.this.apply(new PredicateKey(input));
 
     public static AbstractServerPredicate alwaysTrue() {
         return new AbstractServerPredicate() {        

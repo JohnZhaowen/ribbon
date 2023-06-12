@@ -20,7 +20,9 @@ package com.netflix.loadbalancer;
 /**
  * The input object of predicates of class {@link AbstractServerPredicate}.
  * It includes Server and an Object as load balancer key used in {@link IRule#choose(Object)},
- * which might be null. 
+ * which might be null.
+ *
+ *
  * 
  * @author awang
  *

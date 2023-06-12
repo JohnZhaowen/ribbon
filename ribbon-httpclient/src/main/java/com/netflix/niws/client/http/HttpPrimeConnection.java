@@ -40,7 +40,9 @@ import org.apache.http.params.HttpConnectionParams;
 public class HttpPrimeConnection implements IPrimeConnection {
 
     private static final Logger logger = LoggerFactory.getLogger(HttpPrimeConnection.class);
-    
+
+
+    //NF = netflix ???
     private NFHttpClient client;
     
     public HttpPrimeConnection() {

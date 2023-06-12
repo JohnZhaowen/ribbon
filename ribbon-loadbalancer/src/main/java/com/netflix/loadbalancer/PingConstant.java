@@ -22,6 +22,9 @@ package com.netflix.loadbalancer;
  * (alive or dead)
  * @author stonse
  *
+ * ping常量，不真实去ping
+ *
+ *
  */
 public class PingConstant implements IPing {
 		boolean constant = true;

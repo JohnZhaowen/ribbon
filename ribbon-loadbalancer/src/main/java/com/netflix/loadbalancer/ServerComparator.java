@@ -22,6 +22,8 @@ import java.util.Comparator;
 
 /**
  * Class to help establishing equality for Hash/Key operations.
+ *
+ * 服务比较器
  * 
  * @author stonse
  * 

@@ -22,7 +22,9 @@ import com.netflix.client.config.IClientConfig;
 /**
  * Given that
  * {@link IRule} can be cascaded, this {@link RetryRule} class allows adding a retry logic to an existing Rule.
- * 
+ *
+ * 对subRule（默认是轮询）进行包装，使subRule具有重试功能
+ *
  * @author stonse
  * 
  */
@@ -76,6 +78,7 @@ public class RetryRule extends AbstractLoadBalancerRule {
 	 * early.
 	 */
 	public Server choose(ILoadBalancer lb, Object key) {
+		//默认只能重试500ms，因此计算出截至时间戳
 		long requestTime = System.currentTimeMillis();
 		long deadline = requestTime + maxRetryMillis;
 
@@ -83,17 +86,15 @@ public class RetryRule extends AbstractLoadBalancerRule {
 
 		answer = subRule.choose(key);
 
-		if (((answer == null) || (!answer.isAlive()))
-				&& (System.currentTimeMillis() < deadline)) {
+		//如果从subRule中没有选择到server，或者server不是aclive，或者已经到达截至时间
+		if (((answer == null) || (!answer.isAlive())) && (System.currentTimeMillis() < deadline)) {
 
-			InterruptTask task = new InterruptTask(deadline
-					- System.currentTimeMillis());
+			InterruptTask task = new InterruptTask(deadline - System.currentTimeMillis());
 
 			while (!Thread.interrupted()) {
 				answer = subRule.choose(key);
 
-				if (((answer == null) || (!answer.isAlive()))
-						&& (System.currentTimeMillis() < deadline)) {
+				if (((answer == null) || (!answer.isAlive())) && (System.currentTimeMillis() < deadline)) {
 					/* pause and retry hoping it's transient */
 					Thread.yield();
 				} else {

@@ -19,6 +19,9 @@ package com.netflix.loadbalancer;
 
 import java.util.List;
 
+/**
+ * 服务列表变更监听器
+ */
 public interface ServerListChangeListener {
     /**
      * Invoked by {@link BaseLoadBalancer} when server list is changed  

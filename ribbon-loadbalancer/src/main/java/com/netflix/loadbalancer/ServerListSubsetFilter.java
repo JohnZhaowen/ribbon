@@ -34,7 +34,9 @@ import java.util.Set;
  * This is useful if the server farm is large (e.g., in the hundreds) and making use of every one of them
  * and keeping the connections in http client's connection pool is unnecessary. It also has the capability of eviction 
  * of relatively unhealthy servers by comparing the total network failures and concurrent connections. 
- *  
+ *
+ *  限定server数量，然后交给lb选择其中一个进行负载均衡
+ *
  * @author awang
  *
  * @param <T>

@@ -17,6 +17,10 @@ package com.netflix.loadbalancer;
 
 import java.util.Collection;
 
+
+/**
+ * server状态变更监听器
+ */
 public interface ServerStatusChangeListener {
 
     /**

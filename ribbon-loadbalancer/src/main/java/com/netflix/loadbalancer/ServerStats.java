@@ -38,6 +38,7 @@ import java.util.concurrent.atomic.AtomicLong;
 /**
  * Capture various stats per Server(node) in the LoadBalancer
  * @author stonse
+ * 每个server的统计信息
  *
  */
 public class ServerStats {

@@ -22,6 +22,7 @@ import com.netflix.loadbalancer.Server;
 /**
  * Represents the state of execution for an instance of {@link com.netflix.loadbalancer.reactive.LoadBalancerCommand}
  * and is passed to {@link ExecutionListener}
+ * 执行信息
  *
  * @author Allen Wang
  */

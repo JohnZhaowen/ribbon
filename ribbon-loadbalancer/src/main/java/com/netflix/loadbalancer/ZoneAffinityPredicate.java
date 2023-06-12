@@ -20,6 +20,8 @@ package com.netflix.loadbalancer;
 /**
  * A predicate the filters out servers that are not in the same zone as the client's current
  * zone.
+ * 选择特定zone的服务
+ *
  * 
  * @author awang
  *
@@ -36,7 +38,7 @@ public class ZoneAffinityPredicate extends AbstractServerPredicate {
     public boolean apply(PredicateKey input) {
         Server s = input.getServer();
         String az = s.getZone();
-        if (az != null && zone != null && az.toLowerCase().equals(zone.toLowerCase())) {
+        if (az != null && zone != null && az.equalsIgnoreCase(zone)) {
             return true;
         } else {
             return false;

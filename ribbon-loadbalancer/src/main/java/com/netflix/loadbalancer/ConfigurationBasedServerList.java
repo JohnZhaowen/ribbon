@@ -31,7 +31,8 @@ import com.netflix.client.config.IClientConfig;
  * <pre>{@code
 <clientName>.<nameSpace>.listOfServers=<comma delimited hostname:port strings>
 }</pre>
- * 
+ *
+ * 根据配置文件获取服务列表
  * @author awang
  * 
  */

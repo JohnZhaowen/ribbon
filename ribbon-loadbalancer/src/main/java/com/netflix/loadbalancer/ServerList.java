@@ -21,6 +21,8 @@ import java.util.List;
 
 /**
  * Interface that defines the methods sed to obtain the List of Servers
+ *
+ * server列表
  * @author stonse
  *
  * @param <T>

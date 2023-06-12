@@ -43,6 +43,8 @@ import javax.inject.Provider;
  *
  * @author stonse
  *
+ * 拥有发现功能的服务列表
+ *
  */
 public class DiscoveryEnabledNIWSServerList extends AbstractServerList<DiscoveryEnabledServer>{
 

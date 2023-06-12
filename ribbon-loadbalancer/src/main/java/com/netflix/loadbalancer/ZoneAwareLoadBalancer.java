@@ -49,6 +49,7 @@ A server will be returned from the chosen zone with a given Rule (A Rule is a lo
 For each request, the steps above will be repeated. That is to say, each zone related load balancing decisions are made at real time with the up-to-date statistics aiding the choice.
 
  * @author awang
+ * zong敏感的负载均衡
  *
  * @param <T>
  */

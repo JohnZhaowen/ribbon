@@ -26,13 +26,13 @@ import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * A context object that is created at start of each load balancer execution
- * and contains certain meta data of the load balancer and mutable state data of 
+ * and contains certain meta data of the load balancer and mutable state data of
  * execution per listener per request. Each listener will get its own context
  * to work with. But it can also call {@link ExecutionContext#getGlobalContext()} to
  * get the shared context between all listeners.
- * 
- * @author Allen Wang
+ * 执行上下文
  *
+ * @author Allen Wang
  */
 public class ExecutionContext<T> {
 
@@ -110,7 +110,7 @@ public class ExecutionContext<T> {
         value = clientConfig.get(key);
         return value;
     }
-    
+
     public void put(String name, Object value) {
         context.put(name, value);
     }
@@ -124,7 +124,6 @@ public class ExecutionContext<T> {
     }
 
     /**
-     *
      * @return The shared context for all listeners.
      */
     public ExecutionContext<T> getGlobalContext() {

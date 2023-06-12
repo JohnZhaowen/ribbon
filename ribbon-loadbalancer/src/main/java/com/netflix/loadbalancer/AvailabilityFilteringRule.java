@@ -76,7 +76,9 @@ public class AvailabilityFilteringRule extends PredicateBasedRule {
     /**
      * This method is overridden to provide a more efficient implementation which does not iterate through
      * all servers. This is under the assumption that in most cases, there are more available instances 
-     * than not. 
+     * than not.
+     *
+     * 先轮询获取一个server，然后看该server是否服务predicate
      */
     @Override
     public Server choose(Object key) {

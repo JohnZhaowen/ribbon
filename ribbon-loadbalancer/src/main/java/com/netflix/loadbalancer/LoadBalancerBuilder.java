@@ -9,6 +9,10 @@ import com.netflix.client.config.IClientConfigKey;
 
 import java.util.List;
 
+/**
+ * 构造器
+ * @param <T>
+ */
 public class LoadBalancerBuilder<T extends Server> {
     
     private IClientConfig config = ClientConfigFactory.findDefaultConfigFactory().newConfig();

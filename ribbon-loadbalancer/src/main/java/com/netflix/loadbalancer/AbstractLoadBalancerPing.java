@@ -22,6 +22,8 @@ import com.netflix.client.IClientConfigAware;
 /**
  * Class that provides the basic implementation of detmerining the "liveness" or
  * suitability of a Server (a node)
+ *
+ * 默认返回true，且设置了lb
  * 
  * @author stonse
  * 
