@@ -143,7 +143,7 @@ public class ServerStats {
      * These correspond to the various Monitor methods defined below.
      * No, this is not pretty, but that's the way it is.
      */
-    private static enum Percent {
+    private enum Percent {
 
         TEN(10), TWENTY_FIVE(25), FIFTY(50), SEVENTY_FIVE(75), NINETY(90),
         NINETY_FIVE(95), NINETY_EIGHT(98), NINETY_NINE(99), NINETY_NINE_POINT_FIVE(99.5);

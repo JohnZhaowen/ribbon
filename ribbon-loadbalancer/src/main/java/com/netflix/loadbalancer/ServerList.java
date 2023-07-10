@@ -29,13 +29,17 @@ import java.util.List;
  */
 public interface ServerList<T extends Server> {
 
-    public List<T> getInitialListOfServers();
+    /**
+     * 获取初始服务列表
+     * @return
+     */
+    List<T> getInitialListOfServers();
     
     /**
      * Return updated list of servers. This is called say every 30 secs
      * (configurable) by the Loadbalancer's Ping cycle
-     * 
+     * 获取更新服务列表
      */
-    public List<T> getUpdatedListOfServers();   
+    List<T> getUpdatedListOfServers();
 
 }

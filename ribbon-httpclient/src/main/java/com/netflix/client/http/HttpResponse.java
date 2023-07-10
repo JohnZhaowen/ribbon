@@ -36,35 +36,35 @@ public interface HttpResponse extends IResponse, Closeable {
     /**
      * Get the HTTP status code.
      */
-    public int getStatus();
+    int getStatus();
     
     /**
      * Get the reason phrase of HTTP status
      */
-    public String getStatusLine();
+    String getStatusLine();
     
     /**
      * @see #getHttpHeaders()
      */
     @Override
     @Deprecated
-    public Map<String, Collection<String>> getHeaders();
+    Map<String, Collection<String>> getHeaders();
     
-    public HttpHeaders getHttpHeaders();
+    HttpHeaders getHttpHeaders();
 
-    public void close();
+    void close();
     
-    public InputStream getInputStream();
+    InputStream getInputStream();
 
-    public boolean hasEntity();
+    boolean hasEntity();
     
-    public <T> T getEntity(Class<T> type) throws Exception;
+    <T> T getEntity(Class<T> type) throws Exception;
 
-    public <T> T getEntity(Type type) throws Exception;
+    <T> T getEntity(Type type) throws Exception;
 
     /**
      * @deprecated use {@link #getEntity(Type)}  
      */
     @Deprecated
-    public <T> T getEntity(TypeToken<T> type) throws Exception;
+    <T> T getEntity(TypeToken<T> type) throws Exception;
 }

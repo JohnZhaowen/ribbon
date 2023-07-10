@@ -20,6 +20,9 @@ package com.netflix.client.config;
 /**
  * Defines the key used in {@link IClientConfig}. See {@link CommonClientConfigKey}
  * for the commonly defined client configuration keys.
+ *
+ * 客户端配置的key
+ * 配置属性包含key的名称，key对应的默认value，以及value的对象类型
  * 
  * @author awang
  *

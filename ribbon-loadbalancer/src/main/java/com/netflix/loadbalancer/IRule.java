@@ -32,12 +32,22 @@ public interface IRule{
      * lb.upServers according to key
      * 
      * @return choosen Server object. NULL is returned if none
-     *  server is available 
+     *  server is available
+     *
+     * 根据key选择一个存活的服务器
      */
 
-    public Server choose(Object key);
-    
-    public void setLoadBalancer(ILoadBalancer lb);
-    
-    public ILoadBalancer getLoadBalancer();    
+    Server choose(Object key);
+
+    /**
+     * 设置lb
+     * @param lb
+     */
+    void setLoadBalancer(ILoadBalancer lb);
+
+    /**
+     * 获取lb
+     * @return
+     */
+    ILoadBalancer getLoadBalancer();
 }

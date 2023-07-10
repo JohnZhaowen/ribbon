@@ -37,6 +37,11 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+
+/**
+ * HTTP的请求
+ * @param <T>
+ */
 class HttpMetaRequest<T> implements RequestWithMetaData<T> {
 
     private static class ResponseWithSubject<T> extends RibbonResponse<Observable<T>> {

@@ -36,7 +36,10 @@ import java.util.List;
  * 
  */
 public abstract class AbstractLoadBalancer implements ILoadBalancer {
-    
+
+    /**
+     * 将服务按状态分成三组：所有，UP服务组，非UP服务组
+     */
     public enum ServerGroup{
         ALL,
         STATUS_UP,
@@ -45,6 +48,7 @@ public abstract class AbstractLoadBalancer implements ILoadBalancer {
         
     /**
      * delegate to {@link #chooseServer(Object)} with parameter null.
+     * key为null时选择到的服务
      */
     public Server chooseServer() {
     	return chooseServer(null);
@@ -53,13 +57,16 @@ public abstract class AbstractLoadBalancer implements ILoadBalancer {
     
     /**
      * List of servers that this Loadbalancer knows about
-     * 
+     * 根据服务跟组获取服务列表
+     *
+     *
      * @param serverGroup Servers grouped by status, e.g., {@link ServerGroup#STATUS_UP}
      */
     public abstract List<Server> getServerList(ServerGroup serverGroup);
     
     /**
      * Obtain LoadBalancer related Statistics
+     * 获取
      */
     public abstract LoadBalancerStats getLoadBalancerStats();    
 }

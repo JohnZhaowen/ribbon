@@ -15,18 +15,21 @@
  */
 package com.netflix.ribbon;
 
+/**
+ * 响应异常
+ */
 @SuppressWarnings("serial")
 public class UnsuccessfulResponseException extends Exception {
 
-    public UnsuccessfulResponseException(String arg0, Throwable arg1) {
-        super(arg0, arg1);
+    public UnsuccessfulResponseException(String message, Throwable cause) {
+        super(message, cause);
     }
 
-    public UnsuccessfulResponseException(String arg0) {
-        super(arg0);
+    public UnsuccessfulResponseException(String message) {
+        super(message);
     }
 
-    public UnsuccessfulResponseException(Throwable arg0) {
-        super(arg0);
+    public UnsuccessfulResponseException(Throwable cause) {
+        super(cause);
     }
 }

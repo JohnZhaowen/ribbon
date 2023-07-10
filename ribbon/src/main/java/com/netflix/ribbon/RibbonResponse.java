@@ -21,13 +21,13 @@ import com.netflix.hystrix.HystrixInvokableInfo;
 /**
  * Response object from {@link RequestWithMetaData} that contains the content
  * and the meta data from execution.
- * 
- * @author Allen Wang
  *
  * @param <T> Data type of the returned object
+ * @author Allen Wang
  */
+
 public abstract class RibbonResponse<T> {
     public abstract T content();
-    
-    public abstract HystrixInvokableInfo<?> getHystrixInfo();   
+
+    public abstract HystrixInvokableInfo<?> getHystrixInfo();
 }

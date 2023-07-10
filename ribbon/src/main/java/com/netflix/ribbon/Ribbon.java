@@ -24,11 +24,10 @@ import com.netflix.ribbon.proxy.processor.AnnotationProcessorsProvider;
  * A class that can be used to create {@link com.netflix.ribbon.http.HttpResourceGroup}, {@link com.netflix.ribbon.http.HttpResourceGroup.Builder},
  * and dynamic proxy of service interfaces. It delegates to a default {@link com.netflix.ribbon.RibbonResourceFactory} to do the work.
  * For better configurability or in DI enabled application, it is recommended to use {@link com.netflix.ribbon.RibbonResourceFactory} directly.
- *
  */
 public final class Ribbon {
     private static final RibbonResourceFactory factory = new DefaultResourceFactory(ClientConfigFactory.DEFAULT, RibbonTransportFactory.DEFAULT, AnnotationProcessorsProvider.DEFAULT);
-    
+
     private Ribbon() {
     }
 
@@ -56,7 +55,7 @@ public final class Ribbon {
     /**
      * Create the {@link com.netflix.ribbon.http.HttpResourceGroup} with a name.
      *
-     * @param name name of the resource group, as well as the transport client
+     * @param name    name of the resource group, as well as the transport client
      * @param options Options to override the client configuration created
      */
     public static HttpResourceGroup createHttpResourceGroup(String name, ClientOptions options) {
@@ -67,8 +66,7 @@ public final class Ribbon {
      * Create an instance of remote service interface.
      *
      * @param contract interface class of the remote service
-     *
-     * @param <T> Type of the instance
+     * @param <T>      Type of the instance
      */
     public static <T> T from(Class<T> contract) {
         return factory.from(contract);

@@ -56,12 +56,15 @@ public class RoundRobinRule extends AbstractLoadBalancerRule {
         Server server = null;
         int count = 0;
         while (server == null && count++ < 10) {
-            List<Server> reachableServers = lb.getReachableServers();
+
+            //获取所有服务列表
             List<Server> allServers = lb.getAllServers();
-            int upCount = reachableServers.size();
+
+            //总服务数量
             int serverCount = allServers.size();
 
-            if ((upCount == 0) || (serverCount == 0)) {
+            //如果没有可达服务，或者连非可达服务都没有，直接返回null
+            if ((lb.getReachableServers().size() == 0) || (serverCount == 0)) {
                 log.warn("No up servers available from load balancer: " + lb);
                 return null;
             }
@@ -99,14 +102,26 @@ public class RoundRobinRule extends AbstractLoadBalancerRule {
     private int incrementAndGetModulo(int modulo) {
         for (;;) {
             int current = nextServerCyclicCounter.get();
+            //下一次要访问的服务index
             int next = (current + 1) % modulo;
-            if (nextServerCyclicCounter.compareAndSet(current, next))
+            //***可这操作既可以让计数器自增，还可防止溢出***
+            if (nextServerCyclicCounter.compareAndSet(current, next)){
                 return next;
+            }
         }
     }
 
     @Override
     public Server choose(Object key) {
         return choose(getLoadBalancer(), key);
+    }
+
+    public static void main(String[] args) {
+        RoundRobinRule r = new RoundRobinRule();
+        for (int i = 0; i < 13; i++) {
+            r.incrementAndGetModulo(6);
+            System.out.println(r.nextServerCyclicCounter);
+        }
+
     }
 }

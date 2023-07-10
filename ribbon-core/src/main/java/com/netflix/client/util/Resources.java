@@ -7,6 +7,10 @@ import java.net.URLDecoder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+
+/**
+ * resourceName转成URL
+ */
 public abstract class Resources {
     private static final Logger logger = LoggerFactory.getLogger(Resources.class);
     

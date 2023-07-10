@@ -17,7 +17,7 @@ package com.netflix.ribbon.proxy;
 
 import java.lang.reflect.Method;
 
-import static java.lang.String.*;
+import static java.lang.String.format;
 
 /**
  * A collection of helper methods.

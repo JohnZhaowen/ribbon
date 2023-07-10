@@ -16,8 +16,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
 /**
  * A default strategy for the dynamic server list updater to update.
  * (refactored and moved here from {@link com.netflix.loadbalancer.DynamicServerListLoadBalancer})
- *
+ * <p>
  * 通过主动拉取更新服务列表
+ *
  * @author David Liu
  */
 public class PollingServerListUpdater implements ServerListUpdater {
@@ -66,7 +67,7 @@ public class PollingServerListUpdater implements ServerListUpdater {
     @Override
     public synchronized void start(final UpdateAction updateAction) {
         if (isActive.compareAndSet(false, true)) {
-            final Runnable wrapperRunnable = () ->  {
+            final Runnable wrapperRunnable = () -> {
                 if (!isActive.get()) {
                     if (scheduledFuture != null) {
                         scheduledFuture.cancel(true);

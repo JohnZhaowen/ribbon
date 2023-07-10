@@ -22,15 +22,14 @@ import java.util.List;
 /**
  * This interface allows for filtering the configured or dynamically obtained
  * List of candidate servers with desirable characteristics.
- * 
- * @author stonse
  *
- * 服务列表过滤器
- * 
  * @param <T>
+ * @author stonse
+ * <p>
+ * 服务列表过滤器
  */
 public interface ServerListFilter<T extends Server> {
 
-    public List<T> getFilteredListOfServers(List<T> servers);
+    List<T> getFilteredListOfServers(List<T> servers);
 
 }

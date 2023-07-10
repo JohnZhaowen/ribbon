@@ -17,28 +17,6 @@
  */
 package com.netflix.ribbon.transport.netty;
 
-import io.reactivex.netty.channel.ObservableConnection;
-import io.reactivex.netty.client.ClientMetricsEvent;
-import io.reactivex.netty.client.RxClient;
-import io.reactivex.netty.metrics.MetricEventsListener;
-import io.reactivex.netty.metrics.MetricEventsSubject;
-import io.reactivex.netty.pipeline.PipelineConfigurator;
-
-import java.net.URL;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
-
-import javax.annotation.Nullable;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import rx.Observable;
-import rx.Subscription;
-
 import com.netflix.client.RetryHandler;
 import com.netflix.client.config.CommonClientConfigKey;
 import com.netflix.client.config.DefaultClientConfigImpl;
@@ -48,29 +26,40 @@ import com.netflix.client.ssl.AbstractSslContextFactory;
 import com.netflix.client.ssl.ClientSslSocketFactoryException;
 import com.netflix.client.ssl.URLSslContextFactory;
 import com.netflix.client.util.Resources;
-import com.netflix.loadbalancer.BaseLoadBalancer;
-import com.netflix.loadbalancer.ILoadBalancer;
-import com.netflix.loadbalancer.LoadBalancerBuilder;
-import com.netflix.loadbalancer.LoadBalancerContext;
-import com.netflix.loadbalancer.Server;
-import com.netflix.loadbalancer.ServerListChangeListener;
+import com.netflix.loadbalancer.*;
 import com.netflix.loadbalancer.reactive.LoadBalancerCommand;
 import com.netflix.loadbalancer.reactive.ServerOperation;
+import io.reactivex.netty.channel.ObservableConnection;
+import io.reactivex.netty.client.ClientMetricsEvent;
+import io.reactivex.netty.client.RxClient;
+import io.reactivex.netty.metrics.MetricEventsListener;
+import io.reactivex.netty.metrics.MetricEventsSubject;
+import io.reactivex.netty.pipeline.PipelineConfigurator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import rx.Observable;
+import rx.Subscription;
+
+import javax.annotation.Nullable;
+import java.net.URL;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 /**
  * Decorator for RxClient which adds load balancing functionality.  This implementation uses
  * an ILoadBlanacer and caches the mapping from Server to a client implementation
- * 
- * @author elandau
  *
- * @param <I>   Client input type
- * @param <O>   Client output type
- * @param <T>   Specific RxClient derived type 
+ * @param <I> Client input type
+ * @param <O> Client output type
+ * @param <T> Specific RxClient derived type
+ * @author elandau
  */
 public abstract class LoadBalancingRxClient<I, O, T extends RxClient<I, O>> implements RxClient<I, O> {
 
     private static final Logger logger = LoggerFactory.getLogger(LoadBalancingRxClient.class);
-    
+
     protected final ConcurrentMap<Server, T> rxClientCache;
     protected final PipelineConfigurator<O, I> pipelineConfigurator;
     protected final IClientConfig clientConfig;
@@ -85,9 +74,9 @@ public abstract class LoadBalancingRxClient<I, O, T extends RxClient<I, O>> impl
                 config,
                 defaultRetryHandler,
                 pipelineConfigurator
-                );
+        );
     }
-    
+
     public LoadBalancingRxClient(ILoadBalancer lb, IClientConfig config, RetryHandler defaultRetryHandler, PipelineConfigurator<O, I> pipelineConfigurator) {
         this.rxClientCache = new ConcurrentHashMap<Server, T>();
         this.lbContext = new LoadBalancerContext(lb, config, defaultRetryHandler);
@@ -95,19 +84,19 @@ public abstract class LoadBalancingRxClient<I, O, T extends RxClient<I, O>> impl
         this.pipelineConfigurator = pipelineConfigurator;
         this.clientConfig = config;
         this.listener = createListener(config.getClientName());
-        
+
         eventSubject = new MetricEventsSubject<ClientMetricsEvent<?>>();
-        boolean isSecure = getProperty(IClientConfigKey.Keys.IsSecure, null, false); 
+        boolean isSecure = getProperty(IClientConfigKey.Keys.IsSecure, null, false);
         if (isSecure) {
             final URL trustStoreUrl = getResourceForOptionalProperty(CommonClientConfigKey.TrustStore);
             final URL keyStoreUrl = getResourceForOptionalProperty(CommonClientConfigKey.KeyStore);
             boolean isClientAuthRequired = clientConfig.get(IClientConfigKey.Keys.IsClientAuthRequired, false);
             if (    // if client auth is required, need both a truststore and a keystore to warrant configuring
-                    // if client is not is not required, we only need a keystore OR a truststore to warrant configuring
+                // if client is not is not required, we only need a keystore OR a truststore to warrant configuring
                     (isClientAuthRequired && (trustStoreUrl != null && keyStoreUrl != null))
-                    ||
-                    (!isClientAuthRequired && (trustStoreUrl != null || keyStoreUrl != null))
-                    ) {
+                            ||
+                            (!isClientAuthRequired && (trustStoreUrl != null || keyStoreUrl != null))
+            ) {
 
                 try {
                     sslContextFactory = new URLSslContextFactory(trustStoreUrl,
@@ -127,7 +116,7 @@ public abstract class LoadBalancingRxClient<I, O, T extends RxClient<I, O>> impl
 
         addLoadBalancerListener();
     }
-      
+
     public IClientConfig getClientConfig() {
         return clientConfig;
     }
@@ -146,17 +135,17 @@ public abstract class LoadBalancingRxClient<I, O, T extends RxClient<I, O>> impl
         int connectTimeout = getProperty(IClientConfigKey.Keys.ConnectTimeout, null, DefaultClientConfigImpl.DEFAULT_CONNECT_TIMEOUT);
         return (maxRetryNextServer + 1) * (maxRetrySameServer + 1) * (readTimeout + connectTimeout);
     }
-    
+
     public int getMaxConcurrentRequests() {
         return -1;
     }
-        
+
     /**
      * Resolve the final property value from,
      * 1. Request specific configuration
      * 2. Default configuration
      * 3. Default value
-     * 
+     *
      * @param key
      * @param requestConfig
      * @param defaultValue
@@ -192,11 +181,11 @@ public abstract class LoadBalancingRxClient<I, O, T extends RxClient<I, O>> impl
         if (!(lbContext.getLoadBalancer() instanceof BaseLoadBalancer)) {
             return;
         }
-        
+
         ((BaseLoadBalancer) lbContext.getLoadBalancer()).addServerListChangeListener((oldList, newList) -> {
             Set<Server> removedServers = new HashSet<>(oldList);
             removedServers.removeAll(newList);
-            for (Server server: rxClientCache.keySet()) {
+            for (Server server : rxClientCache.keySet()) {
                 if (removedServers.contains(server)) {
                     // this server is no longer in UP status
                     removeClient(server);
@@ -208,23 +197,23 @@ public abstract class LoadBalancingRxClient<I, O, T extends RxClient<I, O>> impl
     /**
      * Create a client instance for this Server.  Note that only the client object is created
      * here but that the client connection is not created yet.
-     * 
+     *
      * @param server
      * @return
      */
     protected abstract T createRxClient(Server server);
-    
+
     /**
      * Look up the client associated with this Server.
+     *
      * @param server
      * @return
      */
     protected T getOrCreateRxClient(Server server) {
-        T client =  rxClientCache.get(server);
+        T client = rxClientCache.get(server);
         if (client != null) {
             return client;
-        } 
-        else {
+        } else {
             client = createRxClient(server);
             client.subscribe(listener);
             client.subscribe(eventSubject);
@@ -236,9 +225,10 @@ public abstract class LoadBalancingRxClient<I, O, T extends RxClient<I, O>> impl
             }
         }
     }
-    
+
     /**
      * Remove the client for this Server
+     *
      * @param server
      * @return The RxClient implementation or null if not found
      */
@@ -249,7 +239,7 @@ public abstract class LoadBalancingRxClient<I, O, T extends RxClient<I, O>> impl
         }
         return client;
     }
-    
+
     @Override
     public Observable<ObservableConnection<O, I>> connect() {
         return LoadBalancerCommand.<ObservableConnection<O, I>>builder()
@@ -258,16 +248,16 @@ public abstract class LoadBalancingRxClient<I, O, T extends RxClient<I, O>> impl
                 .submit(new ServerOperation<ObservableConnection<O, I>>() {
                     @Override
                     public Observable<ObservableConnection<O, I>> call(Server server) {
-                        return getOrCreateRxClient(server).connect();            
-                    }                    
+                        return getOrCreateRxClient(server).connect();
+                    }
                 });
     }
 
     protected abstract MetricEventsListener<? extends ClientMetricsEvent<?>> createListener(String name);
-    
+
     @Override
     public void shutdown() {
-        for (Server server: rxClientCache.keySet()) {
+        for (Server server : rxClientCache.keySet()) {
             removeClient(server);
         }
     }
@@ -279,7 +269,7 @@ public abstract class LoadBalancingRxClient<I, O, T extends RxClient<I, O>> impl
 
     @Override
     public Subscription subscribe(MetricEventsListener<? extends ClientMetricsEvent<?>> listener) {
-       return eventSubject.subscribe(listener);
+        return eventSubject.subscribe(listener);
     }
 
     public final LoadBalancerContext getLoadBalancerContext() {

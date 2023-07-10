@@ -1,119 +1,119 @@
 /*
-*
-* Copyright 2013 Netflix, Inc.
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-* http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
-*
-*/
+ *
+ * Copyright 2013 Netflix, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
 package com.netflix.loadbalancer;
-
-import com.netflix.client.config.IClientConfig;
 
 /**
  * Given that
  * {@link IRule} can be cascaded, this {@link RetryRule} class allows adding a retry logic to an existing Rule.
- *
+ * <p>
  * 对subRule（默认是轮询）进行包装，使subRule具有重试功能
  *
  * @author stonse
- * 
  */
 public class RetryRule extends AbstractLoadBalancerRule {
-	IRule subRule = new RoundRobinRule();
-	long maxRetryMillis = 500;
+    IRule subRule = new RoundRobinRule();
+    long maxRetryMillis = 500;
 
-	public RetryRule() {
-	}
+    public RetryRule() {
+    }
 
-	public RetryRule(IRule subRule) {
-		this.subRule = (subRule != null) ? subRule : new RoundRobinRule();
-	}
+    public RetryRule(IRule subRule) {
+        this.subRule = (subRule != null) ? subRule : new RoundRobinRule();
+    }
 
-	public RetryRule(IRule subRule, long maxRetryMillis) {
-		this.subRule = (subRule != null) ? subRule : new RoundRobinRule();
-		this.maxRetryMillis = (maxRetryMillis > 0) ? maxRetryMillis : 500;
-	}
+    public RetryRule(IRule subRule, long maxRetryMillis) {
+        this.subRule = (subRule != null) ? subRule : new RoundRobinRule();
+        this.maxRetryMillis = (maxRetryMillis > 0) ? maxRetryMillis : 500;
+    }
 
-	public void setRule(IRule subRule) {
-		this.subRule = (subRule != null) ? subRule : new RoundRobinRule();
-	}
+    public void setRule(IRule subRule) {
+        this.subRule = (subRule != null) ? subRule : new RoundRobinRule();
+    }
 
-	public IRule getRule() {
-		return subRule;
-	}
+    public IRule getRule() {
+        return subRule;
+    }
 
-	public void setMaxRetryMillis(long maxRetryMillis) {
-		if (maxRetryMillis > 0) {
-			this.maxRetryMillis = maxRetryMillis;
-		} else {
-			this.maxRetryMillis = 500;
-		}
-	}
+    public void setMaxRetryMillis(long maxRetryMillis) {
+        if (maxRetryMillis > 0) {
+            this.maxRetryMillis = maxRetryMillis;
+        } else {
+            this.maxRetryMillis = 500;
+        }
+    }
 
-	public long getMaxRetryMillis() {
-		return maxRetryMillis;
-	}
+    public long getMaxRetryMillis() {
+        return maxRetryMillis;
+    }
 
-	
-	
-	@Override
-	public void setLoadBalancer(ILoadBalancer lb) {		
-		super.setLoadBalancer(lb);
-		subRule.setLoadBalancer(lb);
-	}
 
-	/*
-	 * Loop if necessary. Note that the time CAN be exceeded depending on the
-	 * subRule, because we're not spawning additional threads and returning
-	 * early.
-	 */
-	public Server choose(ILoadBalancer lb, Object key) {
-		//默认只能重试500ms，因此计算出截至时间戳
-		long requestTime = System.currentTimeMillis();
-		long deadline = requestTime + maxRetryMillis;
+    @Override
+    public void setLoadBalancer(ILoadBalancer lb) {
+        super.setLoadBalancer(lb);
+        subRule.setLoadBalancer(lb);
+    }
 
-		Server answer = null;
+    /*
+     * Loop if necessary. Note that the time CAN be exceeded depending on the
+     * subRule, because we're not spawning additional threads and returning
+     * early.
+     */
+    public Server choose(ILoadBalancer lb, Object key) {
+        //默认只能重试500ms，因此计算出截至时间戳
+        long requestTime = System.currentTimeMillis();
+        long deadline = requestTime + maxRetryMillis;
 
-		answer = subRule.choose(key);
+        Server answer = null;
 
-		//如果从subRule中没有选择到server，或者server不是aclive，或者已经到达截至时间
-		if (((answer == null) || (!answer.isAlive())) && (System.currentTimeMillis() < deadline)) {
+        answer = subRule.choose(key);
 
-			InterruptTask task = new InterruptTask(deadline - System.currentTimeMillis());
+        //如果从subRule中没有选择到server，或者server不是aclive，但还未到达截至时间，则进行重试
+        if (((answer == null) || (!answer.isAlive())) && (System.currentTimeMillis() < deadline)) {
 
-			while (!Thread.interrupted()) {
-				answer = subRule.choose(key);
+            //到达超时时间后，对发送中断信号，结束下面的while循环
+            InterruptTask task = new InterruptTask(deadline - System.currentTimeMillis());
 
-				if (((answer == null) || (!answer.isAlive())) && (System.currentTimeMillis() < deadline)) {
-					/* pause and retry hoping it's transient */
-					Thread.yield();
-				} else {
-					break;
-				}
-			}
+            while (!Thread.interrupted()) {
+                answer = subRule.choose(key);
 
-			task.cancel();
-		}
+                //如果从subRule中没有选择到server，或者server不是aclive，但还未到达截至时间，则进行重试
+                if (((answer == null) || (!answer.isAlive())) && (System.currentTimeMillis() < deadline)) {
+                    /* pause and retry hoping it's transient */
+                    //放弃一次cpu机会
+                    Thread.yield();
+                } else {
+                    //选择到了server，或者超时了，则退出循环
+                    break;
+                }
+            }
+            //如果逻辑到达这里的时候，还没有超时，则取消task
+            task.cancel();
+        }
 
-		if ((answer == null) || (!answer.isAlive())) {
-			return null;
-		} else {
-			return answer;
-		}
-	}
+        if ((answer == null) || (!answer.isAlive())) {
+            return null;
+        } else {
+            return answer;
+        }
+    }
 
-	@Override
-	public Server choose(Object key) {
-		return choose(getLoadBalancer(), key);
-	}
+    @Override
+    public Server choose(Object key) {
+        return choose(getLoadBalancer(), key);
+    }
 }

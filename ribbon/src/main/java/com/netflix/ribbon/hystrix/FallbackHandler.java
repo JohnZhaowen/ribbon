@@ -15,18 +15,15 @@
  */
 package com.netflix.ribbon.hystrix;
 
-import java.util.Map;
-
 import com.netflix.hystrix.HystrixInvokableInfo;
-
 import rx.Observable;
 
+import java.util.Map;
+
 /**
- * 
- * @author awang
- *
  * @param <T> Output entity type
+ * @author awang
  */
 public interface FallbackHandler<T> {
-    public Observable<T> getFallback(HystrixInvokableInfo<?> hystrixInfo, Map<String, Object> requestProperties);
+    Observable<T> getFallback(HystrixInvokableInfo<?> hystrixInfo, Map<String, Object> requestProperties);
 }

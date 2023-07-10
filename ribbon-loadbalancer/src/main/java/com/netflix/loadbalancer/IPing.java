@@ -31,5 +31,5 @@ public interface IPing {
      * considered a candidate while loadbalancing
      * 
      */
-    public boolean isAlive(Server server);
+    boolean isAlive(Server server);
 }

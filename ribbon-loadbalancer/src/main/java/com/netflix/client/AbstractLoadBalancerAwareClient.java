@@ -31,6 +31,7 @@ import java.net.URI;
 
 /**
  * Abstract class that provides the integration of client with load balancers.
+ * 提供客户端与负载平衡器集成的抽象类。
  *
  * @author awang
  */
@@ -93,16 +94,13 @@ public abstract class AbstractLoadBalancerAwareClient<S extends ClientRequest, T
 
         try {
             return command.submit(
-                            new ServerOperation<T>() {
-                                @Override
-                                public Observable<T> call(Server server) {
-                                    URI finalUri = reconstructURIWithServer(server, request.getUri());
-                                    S requestForServer = (S) request.replaceUri(finalUri);
-                                    try {
-                                        return Observable.just(AbstractLoadBalancerAwareClient.this.execute(requestForServer, requestConfig));
-                                    } catch (Exception e) {
-                                        return Observable.error(e);
-                                    }
+                            server -> {
+                                URI finalUri = reconstructURIWithServer(server, request.getUri());
+                                S requestForServer = (S) request.replaceUri(finalUri);
+                                try {
+                                    return Observable.just(AbstractLoadBalancerAwareClient.this.execute(requestForServer, requestConfig));
+                                } catch (Exception e) {
+                                    return Observable.error(e);
                                 }
                             })
                     .toBlocking()

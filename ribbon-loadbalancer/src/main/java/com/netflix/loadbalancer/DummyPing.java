@@ -17,15 +17,12 @@
  */
 package com.netflix.loadbalancer;
 
-import com.netflix.client.config.IClientConfig;
-
 /**
  * Default simple implementation that marks the liveness of a Server
- * 
- * @author stonse
  *
+ * @author stonse
+ * <p>
  * 返回true
- * 
  */
 public class DummyPing extends AbstractLoadBalancerPing {
 

@@ -51,7 +51,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * <br>
  * 41----80 (A's weight + B's weight + C's weight)
  * <br>
- * 81----100(A's weight + B's weight + C's weight + C's weight)
+ * 81----100(A's weight + B's weight + C's weight + D's weight)
  * <p>
  * Here's the psuedo code for deciding where to send the request:
  * <p>
@@ -97,7 +97,7 @@ public class WeightedResponseTimeRule extends RoundRobinRule {
     
     // holds the accumulated weight from index 0 to current index
     // for example, element at index 2 holds the sum of weight of servers from 0 to 2
-    private volatile List<Double> accumulatedWeights = new ArrayList<Double>();
+    private volatile List<Double> accumulatedWeights = new ArrayList<>();
     
 
     private final Random random = new Random();
@@ -267,7 +267,7 @@ public class WeightedResponseTimeRule extends RoundRobinRule {
                 Double weightSoFar = 0.0;
                 
                 // create new list and hot swap the reference
-                List<Double> finalWeights = new ArrayList<Double>();
+                List<Double> finalWeights = new ArrayList<>();
                 for (Server server : nlb.getAllServers()) {
                     ServerStats ss = stats.getSingleServerStat(server);
                     double weight = totalResponseTime - ss.getResponseTimeAvg();

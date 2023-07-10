@@ -15,10 +15,9 @@
  */
 package com.netflix.ribbon.http;
 
+import com.netflix.ribbon.ResponseValidator;
 import io.netty.buffer.ByteBuf;
 import io.reactivex.netty.protocol.http.client.HttpClientResponse;
-
-import com.netflix.ribbon.ResponseValidator;
 
 public interface HttpResponseValidator extends ResponseValidator<HttpClientResponse<ByteBuf>> {
 }

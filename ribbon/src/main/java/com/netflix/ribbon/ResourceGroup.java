@@ -64,7 +64,7 @@ public abstract class ResourceGroup<T extends RequestTemplate<?, ?>> {
         clientConfig = configFactory.newConfig();
         clientConfig.loadProperties(name);
         if (options != null) {
-            for (IClientConfigKey key: options.getOptions().keySet()) {
+            for (IClientConfigKey key : options.getOptions().keySet()) {
                 clientConfig.set(key, options.getOptions().get(key));
             }
         }
@@ -79,6 +79,6 @@ public abstract class ResourceGroup<T extends RequestTemplate<?, ?>> {
     public final String name() {
         return name;
     }
-    
+
     public abstract <S> TemplateBuilder<S, ?, ?> newTemplateBuilder(String name, Class<? extends S> classType);
 }

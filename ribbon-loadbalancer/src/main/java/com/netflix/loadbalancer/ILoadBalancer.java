@@ -40,7 +40,7 @@ public interface ILoadBalancer {
 	 * 
 	 * @param newServers new servers to add
 	 */
-	public void addServers(List<Server> newServers);
+	void addServers(List<Server> newServers);
 	
 	/**
 	 * Choose a server from load balancer.
@@ -49,7 +49,7 @@ public interface ILoadBalancer {
 	 *         the load balancer does not use this parameter.
 	 * @return server chosen
 	 */
-	public Server chooseServer(Object key);
+	Server chooseServer(Object key);
 	
 	/**
 	 * To be called by the clients of the load balancer to notify that a Server is down
@@ -58,7 +58,7 @@ public interface ILoadBalancer {
 	 * 
 	 * @param server Server to mark as down
 	 */
-	public void markServerDown(Server server);
+	void markServerDown(Server server);
 	
 	/**
 	 * @deprecated 2016-01-20 This method is deprecated in favor of the
@@ -70,15 +70,15 @@ public interface ILoadBalancer {
 	 * @param availableOnly if true, only live and available servers should be returned
 	 */
 	@Deprecated
-	public List<Server> getServerList(boolean availableOnly);
+	List<Server> getServerList(boolean availableOnly);
 
 	/**
 	 * @return Only the servers that are up and reachable.
      */
-    public List<Server> getReachableServers();
+    List<Server> getReachableServers();
 
     /**
      * @return All known servers, both reachable and unreachable.
      */
-	public List<Server> getAllServers();
+	List<Server> getAllServers();
 }

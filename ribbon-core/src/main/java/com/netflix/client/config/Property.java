@@ -5,11 +5,13 @@ import java.util.function.Consumer;
 
 /**
  * Ribbon specific encapsulation of a dynamic configuration property
+ *
  * @param <T>
  */
 public interface Property<T> {
     /**
      * Register a consumer to be called when the configuration changes
+     *
      * @param consumer
      */
     void onChange(Consumer<T> consumer);
@@ -46,7 +48,7 @@ public interface Property<T> {
             }
 
             @Override
-            public String toString( ){
+            public String toString() {
                 return String.valueOf(value);
             }
         };

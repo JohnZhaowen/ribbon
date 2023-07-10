@@ -19,6 +19,7 @@ package com.netflix.loadbalancer;
 
 import com.netflix.client.config.IClientConfig;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -60,6 +61,8 @@ public class RandomRule extends AbstractLoadBalancerRule {
             }
 
             int index = chooseRandomInt(serverCount);
+
+            //这里不会报java.lang.IndexOutOfBoundsException吗？
             server = upList.get(index);
 
             if (server == null) {
@@ -77,6 +80,7 @@ public class RandomRule extends AbstractLoadBalancerRule {
             }
 
             // Shouldn't actually happen... but must be transient or a bug.
+            //
             server = null;
             Thread.yield();
         }
@@ -94,4 +98,13 @@ public class RandomRule extends AbstractLoadBalancerRule {
 	public Server choose(Object key) {
 		return choose(getLoadBalancer(), key);
 	}
+
+    public static void main(String[] args) {
+        List<String> strs = new ArrayList<>();
+        strs.add("a");
+        strs.add("b");
+        strs.add("c");
+
+        System.out.println(strs.get(100));
+    }
 }

@@ -15,7 +15,6 @@
  */
 package com.netflix.ribbon.http;
 
-import com.netflix.ribbon.transport.netty.LoadBalancingRxClient;
 import com.netflix.hystrix.HystrixCommandGroupKey;
 import com.netflix.hystrix.HystrixCommandKey;
 import com.netflix.hystrix.HystrixCommandProperties;
@@ -27,6 +26,7 @@ import com.netflix.ribbon.ResourceGroup.TemplateBuilder;
 import com.netflix.ribbon.ResponseValidator;
 import com.netflix.ribbon.hystrix.FallbackHandler;
 import com.netflix.ribbon.template.ParsedTemplate;
+import com.netflix.ribbon.transport.netty.LoadBalancingRxClient;
 import io.netty.buffer.ByteBuf;
 import io.netty.handler.codec.http.DefaultHttpHeaders;
 import io.netty.handler.codec.http.HttpHeaders;
@@ -38,15 +38,14 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Provides API to construct a request template for HTTP resource. 
+ * Provides API to construct a request template for HTTP resource.
  * <p>
  * <b>Note:</b> This class is not thread safe. It is advised that the template is created and
  * constructed in same thread at initialization of the application. Users can call {@link #requestBuilder()}
- * later on which returns a {@link RequestBuilder} which is thread safe. 
- *
- * @author Allen Wang
+ * later on which returns a {@link RequestBuilder} which is thread safe.
  *
  * @param <T> Type for the return Object of the Http resource
+ * @author Allen Wang
  */
 public class HttpRequestTemplate<T> extends RequestTemplate<T, HttpClientResponse<ByteBuf>> {
 
@@ -101,7 +100,7 @@ public class HttpRequestTemplate<T> extends RequestTemplate<T, HttpClientRespons
             return this;
         }
 
-        public Builder<T>  withMethod(String method) {
+        public Builder<T> withMethod(String method) {
             this.method = HttpMethod.valueOf(method);
             return this;
         }
@@ -124,7 +123,7 @@ public class HttpRequestTemplate<T> extends RequestTemplate<T, HttpClientRespons
             return this;
         }
 
-        public  Builder<T> withHeader(String name, String value) {
+        public Builder<T> withHeader(String name, String value) {
             headers.add(name, value);
             return this;
         }
@@ -160,23 +159,26 @@ public class HttpRequestTemplate<T> extends RequestTemplate<T, HttpClientRespons
     public static class CacheProviderWithKeyTemplate<T> {
         private final ParsedTemplate keyTemplate;
         private final CacheProvider<T> provider;
+
         public CacheProviderWithKeyTemplate(ParsedTemplate keyTemplate,
-                CacheProvider<T> provider) {
+                                            CacheProvider<T> provider) {
             this.keyTemplate = keyTemplate;
             this.provider = provider;
         }
+
         public final ParsedTemplate getKeyTemplate() {
             return keyTemplate;
         }
+
         public final CacheProvider<T> getProvider() {
             return provider;
         }
     }
 
     protected HttpRequestTemplate(String name, HttpResourceGroup group, Class<? extends T> classType, HystrixObservableCommand.Setter setter,
-                        HttpMethod method, HttpHeaders headers, ParsedTemplate uriTemplate,
-                        FallbackHandler<T> fallbackHandler, ResponseValidator<HttpClientResponse<ByteBuf>> validator, CacheProviderWithKeyTemplate<T> cacheProvider,
-                        ParsedTemplate hystrixCacheKeyTemplate) {
+                                  HttpMethod method, HttpHeaders headers, ParsedTemplate uriTemplate,
+                                  FallbackHandler<T> fallbackHandler, ResponseValidator<HttpClientResponse<ByteBuf>> validator, CacheProviderWithKeyTemplate<T> cacheProvider,
+                                  ParsedTemplate hystrixCacheKeyTemplate) {
         this.group = group;
         this.name = name;
         this.classType = classType;

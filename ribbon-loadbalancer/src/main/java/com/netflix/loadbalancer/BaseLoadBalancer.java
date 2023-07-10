@@ -73,9 +73,9 @@ public class BaseLoadBalancer extends AbstractLoadBalancer implements
     protected IPing ping = null;
 
     @Monitor(name = PREFIX + "AllServerList", type = DataSourceType.INFORMATIONAL)
-    protected volatile List<Server> allServerList = Collections.synchronizedList(new ArrayList<Server>());
+    protected volatile List<Server> allServerList = Collections.synchronizedList(new ArrayList<>());
     @Monitor(name = PREFIX + "UpServerList", type = DataSourceType.INFORMATIONAL)
-    protected volatile List<Server> upServerList = Collections.synchronizedList(new ArrayList<Server>());
+    protected volatile List<Server> upServerList = Collections.synchronizedList(new ArrayList<>());
 
     protected ReadWriteLock allServerLock = new ReentrantReadWriteLock();
     protected ReadWriteLock upServerLock = new ReentrantReadWriteLock();
@@ -430,7 +430,7 @@ public class BaseLoadBalancer extends AbstractLoadBalancer implements
     public void addServers(List<Server> newServers) {
         if (newServers != null && newServers.size() > 0) {
             try {
-                ArrayList<Server> newList = new ArrayList<Server>();
+                ArrayList<Server> newList = new ArrayList<>();
                 newList.addAll(allServerList);
                 newList.addAll(newServers);
                 setServersList(newList);
@@ -677,8 +677,8 @@ public class BaseLoadBalancer extends AbstractLoadBalancer implements
                 int numCandidates = allServers.length;
                 results = pingerStrategy.pingServers(ping, allServers);
 
-                final List<Server> newUpList = new ArrayList<Server>();
-                final List<Server> changedServers = new ArrayList<Server>();
+                final List<Server> newUpList = new ArrayList<>();
+                final List<Server> changedServers = new ArrayList<>();
 
                 for (int i = 0; i < numCandidates; i++) {
                     boolean isAlive = results[i];

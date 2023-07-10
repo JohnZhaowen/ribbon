@@ -196,12 +196,11 @@ public abstract class CommonClientConfigKey<T> implements IClientConfigKey<T> {
     
     public static final IClientConfigKey<String> ListOfServers = new CommonClientConfigKey<String>("listOfServers", "") {};
 
-    private static final Set<IClientConfigKey> keys = new HashSet<IClientConfigKey>();
+    private static final Set<IClientConfigKey> keys = new HashSet<>();
         
     static {
         for (Field f: CommonClientConfigKey.class.getDeclaredFields()) {
-            if (Modifier.isStatic(f.getModifiers()) //&& Modifier.isPublic(f.getModifiers())
-                    && IClientConfigKey.class.isAssignableFrom(f.getType())) {
+            if (Modifier.isStatic(f.getModifiers()) && IClientConfigKey.class.isAssignableFrom(f.getType())) {
                 try {
                     keys.add((IClientConfigKey) f.get(null));
                 } catch (IllegalAccessException e) {

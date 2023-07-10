@@ -48,7 +48,7 @@ class HttpClientResponse implements HttpResponse {
     
     private final ClientResponse bcr;
             
-    private final Multimap<String, String> headers = ArrayListMultimap.<String, String>create();
+    private final Multimap<String, String> headers = ArrayListMultimap.create();
     private final HttpHeaders httpHeaders;
     private final URI requestedURI;
     private final IClientConfig overrideConfig;

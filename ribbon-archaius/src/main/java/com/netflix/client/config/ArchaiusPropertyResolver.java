@@ -14,6 +14,14 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 
+
+/**
+ * 核心就是对config的处理
+ * 包含：
+ * 1. 监听更新
+ * 2. 特定前缀属性处理
+ * 3. 根据key，获取value
+ */
 public class ArchaiusPropertyResolver implements PropertyResolver {
     private static final Logger LOG = LoggerFactory.getLogger(ArchaiusPropertyResolver.class);
 
@@ -24,12 +32,9 @@ public class ArchaiusPropertyResolver implements PropertyResolver {
     private ArchaiusPropertyResolver() {
         this.config = ConfigurationManager.getConfigInstance();
 
-        ConfigurationManager.getConfigInstance().addConfigurationListener(new ConfigurationListener() {
-            @Override
-            public void configurationChanged(ConfigurationEvent event) {
-                if (!event.isBeforeUpdate()) {
-                    actions.forEach(ArchaiusPropertyResolver::invokeAction);
-                }
+        ConfigurationManager.getConfigInstance().addConfigurationListener(event -> {
+            if (!event.isBeforeUpdate()) {
+                actions.forEach(ArchaiusPropertyResolver::invokeAction);
             }
         });
     }
@@ -62,7 +67,7 @@ public class ArchaiusPropertyResolver implements PropertyResolver {
                     .map(ar -> Arrays.stream(ar).collect(Collectors.joining(",")))
                     .map(value -> {
                         if (type.equals(String.class)) {
-                            return (T)value;
+                            return (T) value;
                         } else {
                             return PropertyUtils.resolveWithValueOf(type, value)
                                     .orElseThrow(() -> new IllegalArgumentException("Unable to convert value to desired type " + type));

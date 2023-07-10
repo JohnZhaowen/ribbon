@@ -6,7 +6,7 @@ import com.netflix.discovery.CacheRefreshedEvent;
 import com.netflix.discovery.EurekaClient;
 import com.netflix.discovery.EurekaEvent;
 import com.netflix.discovery.EurekaEventListener;
-import com.netflix.loadbalancer.*;
+import com.netflix.loadbalancer.ServerListUpdater;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,10 +22,10 @@ import java.util.concurrent.atomic.AtomicLong;
 /**
  * A server list updater for the {@link com.netflix.loadbalancer.DynamicServerListLoadBalancer} that
  * utilizes eureka's event listener to trigger LB cache updates.
- *
+ * <p>
  * Note that when a cache refreshed notification is received, the actual update on the serverList is
  * done on a separate scheduler as the notification is delivered on an eurekaClient thread.
- *
+ * <p>
  * 通过注册中心通知来更新服务列表
  *
  * @author David Liu
@@ -89,7 +89,7 @@ public class EurekaNotificationServerListUpdater implements ServerListUpdater {
                 return propSize;
             }
             return 2; // default
-        }        
+        }
     }
 
     public static ExecutorService getDefaultRefreshExecutor() {
@@ -149,8 +149,7 @@ public class EurekaNotificationServerListUpdater implements ServerListUpdater {
                                 logger.warn("Error submitting update task to executor, skipping one round of updates", e);
                                 updateQueued.set(false);  // if submit fails, need to reset updateQueued to false
                             }
-                        }
-                        else {
+                        } else {
                             logger.debug("stopping EurekaNotificationServerListUpdater, as refreshExecutor has been shut down");
                             stop();
                         }

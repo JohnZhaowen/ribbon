@@ -66,7 +66,7 @@ import com.netflix.client.config.IClientConfigKey;
  * will fall back to use {@link RoundRobinRule}. 
  * @author stonse
  *
- * 影响时间权重规则
+ * 响应时间权重规则
  * 
  * @deprecated Use {@link WeightedResponseTimeRule}
  * 

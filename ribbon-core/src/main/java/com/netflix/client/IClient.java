@@ -31,6 +31,8 @@ public interface IClient<S extends ClientRequest, T extends IResponse> {
 	/**
 	 * Execute the request and return the response. It is expected that there is no retry and all exceptions
      * are thrown directly.
+	 * 发送requst，返回response
+	 *
 	 */
-    public T execute(S request, IClientConfig requestConfig) throws Exception; 
+    T execute(S request, IClientConfig requestConfig) throws Exception;
 }

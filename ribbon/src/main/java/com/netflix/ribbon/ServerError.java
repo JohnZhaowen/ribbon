@@ -15,6 +15,10 @@
  */
 package com.netflix.ribbon;
 
+
+/**
+ * 服务器异常
+ */
 @SuppressWarnings("serial")
 public class ServerError extends Exception {
 

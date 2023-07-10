@@ -22,12 +22,8 @@ public class DefaultResponseToErrorPolicy<O> implements Func2<HttpClientResponse
             t1.getStatus().equals(HttpResponseStatus.GATEWAY_TIMEOUT)) {
             if (backoff > 0) {
                 return Observable.timer(backoff, TimeUnit.MILLISECONDS)
-                            .concatMap(new Func1<Long, Observable<HttpClientResponse<O>>>() {
-                                @Override
-                                public Observable<HttpClientResponse<O>> call(Long t1) {
-                                    return Observable.error(new ClientException(ClientException.ErrorType.SERVER_THROTTLED));
-                                }
-                            });
+                            .concatMap((Func1<Long, Observable<HttpClientResponse<O>>>) t11 ->
+                                    Observable.error(new ClientException(ClientException.ErrorType.SERVER_THROTTLED)));
             }
             else {
                 return Observable.error(new ClientException(ClientException.ErrorType.SERVER_THROTTLED));

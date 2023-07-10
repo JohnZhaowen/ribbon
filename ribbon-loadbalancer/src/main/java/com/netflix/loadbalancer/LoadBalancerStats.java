@@ -431,7 +431,7 @@ public class LoadBalancerStats implements IClientConfigAware {
     };
     
     private static Collection<ServerStats> getSortedServerStats(Collection<ServerStats> stats) {
-        List<ServerStats> list = new ArrayList<ServerStats>(stats);
+        List<ServerStats> list = new ArrayList<>(stats);
         Collections.sort(list, serverStatsComparator);
         return list;
     }

@@ -24,46 +24,45 @@ import java.util.concurrent.TimeUnit;
  * Default client configuration that loads properties from Archaius's ConfigurationManager.
  * <p>
  * The easiest way to configure client and load balancer is through loading properties into Archaius that conform to the specific format:
-
- <pre>{@code
-<clientName>.<nameSpace>.<propertyName>=<value>
-}</pre>
- <p>
- You can define properties in a file on classpath or as system properties. If former, ConfigurationManager.loadPropertiesFromResources() API should be called to load the file.
- <p>
- By default, "ribbon" should be the nameSpace.
- <p>
- If there is no property specified for a named client, {@code com.netflix.client.ClientFactory} will still create the client and
- load balancer with default values for all necessary properties. The default
- values are specified in this class as constants.
- <p>
- If a property is missing the clientName, it is interpreted as a property that applies to all clients. For example
-
- <pre>{@code
-ribbon.ReadTimeout=1000
-}</pre>
-
- This will establish the default ReadTimeout property for all clients.
- <p>
- You can also programmatically set properties by constructing instance of DefaultClientConfigImpl. Follow these steps:
- <ul>
- <li> Get an instance by calling {@link #getClientConfigWithDefaultValues(String)} to load default values,
- and any properties that are already defined with Configuration in Archaius
- <li> Set all desired properties by calling {@link #setProperty(IClientConfigKey, Object)} API.
- <li> Pass this instance together with client name to {@code com.netflix.client.ClientFactory} API.
- </ul>
- <p><p>
- If it is desired to have properties defined in a different name space, for example, "foo"
-
- <pre>{@code
-myclient.foo.ReadTimeout=1000
-}</pre>
-
- You should use {@link #getClientConfigWithDefaultValues(String, String)} - in the first step above.
+ *
+ * <pre>{@code
+ * <clientName>.<nameSpace>.<propertyName>=<value>
+ * }</pre>
+ * <p>
+ * You can define properties in a file on classpath or as system properties. If former, ConfigurationManager.loadPropertiesFromResources() API should be called to load the file.
+ * <p>
+ * By default, "ribbon" should be the nameSpace.
+ * <p>
+ * If there is no property specified for a named client, {@code com.netflix.client.ClientFactory} will still create the client and
+ * load balancer with default values for all necessary properties. The default
+ * values are specified in this class as constants.
+ * <p>
+ * If a property is missing the clientName, it is interpreted as a property that applies to all clients. For example
+ *
+ * <pre>{@code
+ * ribbon.ReadTimeout=1000
+ * }</pre>
+ * <p>
+ * This will establish the default ReadTimeout property for all clients.
+ * <p>
+ * You can also programmatically set properties by constructing instance of DefaultClientConfigImpl. Follow these steps:
+ * <ul>
+ * <li> Get an instance by calling {@link #getClientConfigWithDefaultValues(String)} to load default values,
+ * and any properties that are already defined with Configuration in Archaius
+ * <li> Set all desired properties by calling {@link #setProperty(IClientConfigKey, Object)} API.
+ * <li> Pass this instance together with client name to {@code com.netflix.client.ClientFactory} API.
+ * </ul>
+ * <p><p>
+ * If it is desired to have properties defined in a different name space, for example, "foo"
+ *
+ * <pre>{@code
+ * myclient.foo.ReadTimeout=1000
+ * }</pre>
+ * <p>
+ * You should use {@link #getClientConfigWithDefaultValues(String, String)} - in the first step above.
  *
  * @author Sudhir Tonse
  * @author awang
- *
  */
 public class DefaultClientConfigImpl extends AbstractDefaultClientConfigImpl {
     public static final String DEFAULT_PROPERTY_NAME_SPACE = CommonClientConfigKey.DEFAULT_NAME_SPACE;
@@ -276,7 +275,7 @@ public class DefaultClientConfigImpl extends AbstractDefaultClientConfigImpl {
     }
 
     @Deprecated
-    public Boolean getDefaultIsClientAuthRequired(){
+    public Boolean getDefaultIsClientAuthRequired() {
         return DEFAULT_IS_CLIENT_AUTH_REQUIRED;
     }
 
@@ -326,7 +325,7 @@ public class DefaultClientConfigImpl extends AbstractDefaultClientConfigImpl {
         setDefault(CommonClientConfigKey.PrimeConnectionsURI, getDefaultPrimeConnectionsUri());
         setDefault(CommonClientConfigKey.PoolMinThreads, getDefaultPoolMinThreads());
         setDefault(CommonClientConfigKey.PoolMaxThreads, getDefaultPoolMaxThreads());
-        setDefault(CommonClientConfigKey.PoolKeepAliveTime, (int)getDefaultPoolKeepAliveTime());
+        setDefault(CommonClientConfigKey.PoolKeepAliveTime, (int) getDefaultPoolKeepAliveTime());
         setDefault(CommonClientConfigKey.PoolKeepAliveTimeUnits, getDefaultPoolKeepAliveTimeUnits().toString());
         setDefault(CommonClientConfigKey.EnableZoneAffinity, getDefaultEnableZoneAffinity());
         setDefault(CommonClientConfigKey.EnableZoneExclusivity, getDefaultEnableZoneExclusivity());
@@ -392,7 +391,7 @@ public class DefaultClientConfigImpl extends AbstractDefaultClientConfigImpl {
     }
 
     public String getInstancePropName(String restClientName,
-            IClientConfigKey configKey) {
+                                      IClientConfigKey configKey) {
         return getInstancePropName(restClientName, configKey.key());
     }
 

@@ -22,14 +22,20 @@ import java.util.stream.StreamSupport;
 
 /**
  * Created by awang on 7/18/14.
+ * 客户端配置工厂
  */
 public interface ClientConfigFactory {
+
     IClientConfig newConfig();
 
     ClientConfigFactory DEFAULT = findDefaultConfigFactory();
 
     default int getPriority() { return 0; }
 
+    /**
+     * 获取默认工厂，SPI加载机制
+     * @return
+     */
     static ClientConfigFactory findDefaultConfigFactory() {
         return StreamSupport.stream(ServiceLoader.load(ClientConfigFactory.class).spliterator(), false)
                 .sorted(Comparator

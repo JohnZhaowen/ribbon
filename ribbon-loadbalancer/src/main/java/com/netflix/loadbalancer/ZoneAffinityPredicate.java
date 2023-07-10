@@ -22,9 +22,7 @@ package com.netflix.loadbalancer;
  * zone.
  * 选择特定zone的服务
  *
- * 
  * @author awang
- *
  */
 public class ZoneAffinityPredicate extends AbstractServerPredicate {
 

@@ -16,35 +16,36 @@
 
 package com.netflix.ribbon;
 
-import java.util.concurrent.Future;
-
 import rx.Observable;
+
+import java.util.concurrent.Future;
 
 /**
  * A decorated request object whose response content contains the execution meta data.
- * 
- * @author Allen Wang
+ * <p>
+ * 请求对象的装饰器，它的响应内容包含执行元数据
  *
+ * @author Allen Wang
  */
 public interface RequestWithMetaData<T> {
     /**
      * Non blocking API that returns an {@link Observable} while the execution is started asynchronously.
-     * Subscribing to the returned {@link Observable} is guaranteed to get the complete sequence from 
-     * the beginning, which might be replayed by the framework. 
-     */    
+     * Subscribing to the returned {@link Observable} is guaranteed to get the complete sequence from
+     * the beginning, which might be replayed by the framework.
+     */
     Observable<RibbonResponse<Observable<T>>> observe();
-    
+
     /**
      * Non blocking API that returns an Observable. The execution is not started until the returned Observable is subscribed to.
      */
     Observable<RibbonResponse<Observable<T>>> toObservable();
-    
+
     /**
-     * Non blocking API that returns a {@link Future}, where its {@link Future#get()} method is blocking and returns a 
+     * Non blocking API that returns a {@link Future}, where its {@link Future#get()} method is blocking and returns a
      * single (or last element if there is a sequence of objects from the execution) element
      */
     Future<RibbonResponse<T>> queue();
-    
+
     /**
      * Blocking API that returns a single (or last element if there is a sequence of objects from the execution) element
      */

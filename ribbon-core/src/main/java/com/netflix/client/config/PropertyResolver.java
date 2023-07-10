@@ -19,6 +19,7 @@ public interface PropertyResolver {
 
     /**
      * Provide action to invoke when config changes
+     *
      * @param action
      */
     void onChange(Runnable action);

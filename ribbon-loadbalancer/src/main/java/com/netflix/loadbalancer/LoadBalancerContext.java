@@ -18,11 +18,7 @@
 package com.netflix.loadbalancer;
 
 import com.google.common.base.Strings;
-import com.netflix.client.ClientException;
-import com.netflix.client.ClientRequest;
-import com.netflix.client.DefaultLoadBalancerRetryHandler;
-import com.netflix.client.IClientConfigAware;
-import com.netflix.client.RetryHandler;
+import com.netflix.client.*;
 import com.netflix.client.config.CommonClientConfigKey;
 import com.netflix.client.config.IClientConfig;
 import com.netflix.servo.monitor.Monitors;
@@ -35,17 +31,19 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.Nullable;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 /**
  * A class contains APIs intended to be used be load balancing client which is subclass of this class.
  * 负载均衡上下文
+ *
  * @author awang
  */
 public class LoadBalancerContext implements IClientConfigAware {
     private static final Logger logger = LoggerFactory.getLogger(LoadBalancerContext.class);
 
-    protected String clientName = "default";          
+    protected String clientName = "default";
 
     protected String vipAddresses;
 
@@ -67,11 +65,12 @@ public class LoadBalancerContext implements IClientConfigAware {
 
     /**
      * Delegate to {@link #initWithNiwsConfig(IClientConfig)}
+     *
      * @param clientConfig
      */
     public LoadBalancerContext(ILoadBalancer lb, IClientConfig clientConfig) {
         this.lb = lb;
-        initWithNiwsConfig(clientConfig);        
+        initWithNiwsConfig(clientConfig);
     }
 
     public LoadBalancerContext(ILoadBalancer lb, IClientConfig clientConfig, RetryHandler handler) {
@@ -85,7 +84,7 @@ public class LoadBalancerContext implements IClientConfigAware {
     @Override
     public void initWithNiwsConfig(IClientConfig clientConfig) {
         if (clientConfig == null) {
-            return;    
+            return;
         }
         clientName = clientConfig.getClientName();
         if (StringUtils.isEmpty(clientName)) {
@@ -96,7 +95,7 @@ public class LoadBalancerContext implements IClientConfigAware {
         maxAutoRetriesNextServer = clientConfig.getOrDefault(CommonClientConfigKey.MaxAutoRetriesNextServer);
         okToRetryOnAllOperations = clientConfig.getOrDefault(CommonClientConfigKey.OkToRetryOnAllOperations);
         defaultRetryHandler = new DefaultLoadBalancerRetryHandler(clientConfig);
-        
+
         tracer = getExecuteTracer();
 
         Monitors.registerObject("Client_" + clientName, this);
@@ -104,13 +103,13 @@ public class LoadBalancerContext implements IClientConfigAware {
 
     public Timer getExecuteTracer() {
         if (tracer == null) {
-            synchronized(this) {
+            synchronized (this) {
                 if (tracer == null) {
-                    tracer = Monitors.newTimer(clientName + "_LoadBalancerExecutionTimer", TimeUnit.MILLISECONDS);                    
+                    tracer = Monitors.newTimer(clientName + "_LoadBalancerExecutionTimer", TimeUnit.MILLISECONDS);
                 }
             }
-        } 
-        return tracer;        
+        }
+        return tracer;
     }
 
     public String getClientName() {
@@ -118,7 +117,7 @@ public class LoadBalancerContext implements IClientConfigAware {
     }
 
     public ILoadBalancer getLoadBalancer() {
-        return lb;    
+        return lb;
     }
 
     public void setLoadBalancer(ILoadBalancer lb) {
@@ -126,7 +125,7 @@ public class LoadBalancerContext implements IClientConfigAware {
     }
 
     /**
-     * Use {@link #getRetryHandler()} 
+     * Use {@link #getRetryHandler()}
      */
     @Deprecated
     public int getMaxAutoRetriesNextServer() {
@@ -134,7 +133,7 @@ public class LoadBalancerContext implements IClientConfigAware {
     }
 
     /**
-     * Use {@link #setRetryHandler(RetryHandler)} 
+     * Use {@link #setRetryHandler(RetryHandler)}
      */
     @Deprecated
     public void setMaxAutoRetriesNextServer(int maxAutoRetriesNextServer) {
@@ -142,7 +141,7 @@ public class LoadBalancerContext implements IClientConfigAware {
     }
 
     /**
-     * Use {@link #getRetryHandler()} 
+     * Use {@link #getRetryHandler()}
      */
     @Deprecated
     public int getMaxAutoRetries() {
@@ -150,7 +149,7 @@ public class LoadBalancerContext implements IClientConfigAware {
     }
 
     /**
-     * Use {@link #setRetryHandler(RetryHandler)} 
+     * Use {@link #setRetryHandler(RetryHandler)}
      */
     @Deprecated
     public void setMaxAutoRetries(int maxAutoRetries) {
@@ -158,7 +157,7 @@ public class LoadBalancerContext implements IClientConfigAware {
     }
 
     protected Throwable getDeepestCause(Throwable e) {
-        if(e != null) {
+        if (e != null) {
             int infiniteLoopPreventionCounter = 10;
             while (e.getCause() != null && infiniteLoopPreventionCounter > 0) {
                 infiniteLoopPreventionCounter--;
@@ -168,13 +167,12 @@ public class LoadBalancerContext implements IClientConfigAware {
         return e;
     }
 
-    private boolean isPresentAsCause(Throwable throwableToSearchIn,
-            Class<? extends Throwable> throwableToSearchFor) {
+    private boolean isPresentAsCause(Throwable throwableToSearchIn, Class<? extends Throwable> throwableToSearchFor) {
         return isPresentAsCauseHelper(throwableToSearchIn, throwableToSearchFor) != null;
     }
 
     static Throwable isPresentAsCauseHelper(Throwable throwableToSearchIn,
-            Class<? extends Throwable> throwableToSearchFor) {
+                                            Class<? extends Throwable> throwableToSearchFor) {
         int infiniteLoopPreventionCounter = 10;
         while (throwableToSearchIn != null && infiniteLoopPreventionCounter > 0) {
             infiniteLoopPreventionCounter--;
@@ -188,28 +186,28 @@ public class LoadBalancerContext implements IClientConfigAware {
         return null;
     }
 
-    protected ClientException generateNIWSException(String uri, Throwable e){
+    protected ClientException generateNIWSException(String uri, Throwable e) {
         ClientException niwsClientException;
         if (isPresentAsCause(e, java.net.SocketTimeoutException.class)) {
             niwsClientException = generateTimeoutNIWSException(uri, e);
-        }else if (e.getCause() instanceof java.net.UnknownHostException){
+        } else if (e.getCause() instanceof java.net.UnknownHostException) {
             niwsClientException = new ClientException(
                     ClientException.ErrorType.UNKNOWN_HOST_EXCEPTION,
                     "Unable to execute RestClient request for URI:" + uri,
                     e);
-        }else if (e.getCause() instanceof java.net.ConnectException){
+        } else if (e.getCause() instanceof java.net.ConnectException) {
             niwsClientException = new ClientException(
                     ClientException.ErrorType.CONNECT_EXCEPTION,
                     "Unable to execute RestClient request for URI:" + uri,
                     e);
-        }else if (e.getCause() instanceof java.net.NoRouteToHostException){
+        } else if (e.getCause() instanceof java.net.NoRouteToHostException) {
             niwsClientException = new ClientException(
                     ClientException.ErrorType.NO_ROUTE_TO_HOST_EXCEPTION,
                     "Unable to execute RestClient request for URI:" + uri,
                     e);
-        }else if (e instanceof ClientException){
-            niwsClientException = (ClientException)e;
-        }else {
+        } else if (e instanceof ClientException) {
+            niwsClientException = (ClientException) e;
+        } else {
             niwsClientException = new ClientException(
                     ClientException.ErrorType.GENERAL,
                     "Unable to execute RestClient request for URI:" + uri,
@@ -219,14 +217,15 @@ public class LoadBalancerContext implements IClientConfigAware {
     }
 
     private boolean isPresentAsCause(Throwable throwableToSearchIn,
-            Class<? extends Throwable> throwableToSearchFor, String messageSubStringToSearchFor) {
+                                     Class<? extends Throwable> throwableToSearchFor, String messageSubStringToSearchFor) {
         Throwable throwableFound = isPresentAsCauseHelper(throwableToSearchIn, throwableToSearchFor);
-        if(throwableFound != null) {
+        if (throwableFound != null) {
             return throwableFound.getMessage().contains(messageSubStringToSearchFor);
         }
         return false;
     }
-    private ClientException generateTimeoutNIWSException(String uri, Throwable e){
+
+    private ClientException generateTimeoutNIWSException(String uri, Throwable e) {
         ClientException niwsClientException;
         if (isPresentAsCause(e, java.net.SocketTimeoutException.class,
                 "Read timed out")) {
@@ -244,30 +243,30 @@ public class LoadBalancerContext implements IClientConfigAware {
     }
 
     private void recordStats(ServerStats stats, long responseTime) {
-    	if (stats == null) {
-    		return;
-    	}
+        if (stats == null) {
+            return;
+        }
         stats.decrementActiveRequestsCount();
         stats.incrementNumRequests();
         stats.noteResponseTime(responseTime);
     }
 
     protected void noteRequestCompletion(ServerStats stats, Object response, Throwable e, long responseTime) {
-    	if (stats == null) {
-    		return;
-    	}
+        if (stats == null) {
+            return;
+        }
         noteRequestCompletion(stats, response, e, responseTime, null);
     }
-    
-    
+
+
     /**
      * This is called after a response is received or an exception is thrown from the client
-     * to update related stats.  
+     * to update related stats.
      */
     public void noteRequestCompletion(ServerStats stats, Object response, Throwable e, long responseTime, RetryHandler errorHandler) {
-    	if (stats == null) {
-    		return;
-    	}
+        if (stats == null) {
+            return;
+        }
         try {
             recordStats(stats, responseTime);
             RetryHandler callErrorHandler = errorHandler == null ? getRetryHandler() : errorHandler;
@@ -275,7 +274,7 @@ public class LoadBalancerContext implements IClientConfigAware {
                 stats.clearSuccessiveConnectionFailureCount();
             } else if (callErrorHandler != null && e != null) {
                 if (callErrorHandler.isCircuitTrippingException(e)) {
-                    stats.incrementSuccessiveConnectionFailureCount();                    
+                    stats.incrementSuccessiveConnectionFailureCount();
                     stats.addToFailureCount();
                 } else {
                     stats.clearSuccessiveConnectionFailureCount();
@@ -283,23 +282,23 @@ public class LoadBalancerContext implements IClientConfigAware {
             }
         } catch (Exception ex) {
             logger.error("Error noting stats for client {}", clientName, ex);
-        }            
+        }
     }
 
     /**
      * This is called after an error is thrown from the client
-     * to update related stats.  
+     * to update related stats.
      */
     protected void noteError(ServerStats stats, ClientRequest request, Throwable e, long responseTime) {
-    	if (stats == null) {
-    		return;
-    	}
+        if (stats == null) {
+            return;
+        }
         try {
             recordStats(stats, responseTime);
             RetryHandler errorHandler = getRetryHandler();
             if (errorHandler != null && e != null) {
                 if (errorHandler.isCircuitTrippingException(e)) {
-                    stats.incrementSuccessiveConnectionFailureCount();                    
+                    stats.incrementSuccessiveConnectionFailureCount();
                     stats.addToFailureCount();
                 } else {
                     stats.clearSuccessiveConnectionFailureCount();
@@ -307,26 +306,26 @@ public class LoadBalancerContext implements IClientConfigAware {
             }
         } catch (Exception ex) {
             logger.error("Error noting stats for client {}", clientName, ex);
-        }            
+        }
     }
 
     /**
      * This is called after a response is received from the client
-     * to update related stats.  
+     * to update related stats.
      */
     protected void noteResponse(ServerStats stats, ClientRequest request, Object response, long responseTime) {
-    	if (stats == null) {
-    		return;
-    	}
+        if (stats == null) {
+            return;
+        }
         try {
             recordStats(stats, responseTime);
             RetryHandler errorHandler = getRetryHandler();
             if (errorHandler != null && response != null) {
                 stats.clearSuccessiveConnectionFailureCount();
-            } 
+            }
         } catch (Exception ex) {
             logger.error("Error noting stats for client {}", clientName, ex);
-        }            
+        }
     }
 
     /**
@@ -340,12 +339,12 @@ public class LoadBalancerContext implements IClientConfigAware {
             serverStats.incrementActiveRequestsCount();
         } catch (Exception ex) {
             logger.error("Error noting stats for client {}", clientName, ex);
-        }            
+        }
     }
 
 
     /**
-     * Derive scheme and port from a partial URI. For example, for HTTP based client, the URI with 
+     * Derive scheme and port from a partial URI. For example, for HTTP based client, the URI with
      * only path "/" should return "http" and 80, whereas the URI constructed with scheme "https" and
      * path "/" should return "https" and 443.
      * This method is called by {@link #getServerFromLoadBalancer(java.net.URI, Object)} and
@@ -355,15 +354,15 @@ public class LoadBalancerContext implements IClientConfigAware {
         boolean isSecure = false;
         String scheme = uri.getScheme();
         if (scheme != null) {
-            isSecure =  scheme.equalsIgnoreCase("https");
+            isSecure = scheme.equalsIgnoreCase("https");
         }
         int port = uri.getPort();
-        if (port < 0 && !isSecure){
+        if (port < 0 && !isSecure) {
             port = 80;
-        } else if (port < 0 && isSecure){
+        } else if (port < 0 && isSecure) {
             port = 443;
         }
-        if (scheme == null){
+        if (scheme == null) {
             if (isSecure) {
                 scheme = "https";
             } else {
@@ -374,9 +373,9 @@ public class LoadBalancerContext implements IClientConfigAware {
     }
 
     /**
-     * Get the default port of the target server given the scheme of vip address if it is available. 
+     * Get the default port of the target server given the scheme of vip address if it is available.
      * Subclass should override it to provider protocol specific default port number if any.
-     * 
+     *
      * @param scheme from the vip address. null if not present.
      * @return 80 if scheme is http, 443 if scheme is https, -1 else.
      */
@@ -395,17 +394,16 @@ public class LoadBalancerContext implements IClientConfigAware {
 
 
     /**
-     * Derive the host and port from virtual address if virtual address is indeed contains the actual host 
+     * Derive the host and port from virtual address if virtual address is indeed contains the actual host
      * and port of the server. This is the final resort to compute the final URI in {@link #getServerFromLoadBalancer(java.net.URI, Object)}
      * if there is no load balancer available and the request URI is incomplete. Sub classes can override this method
      * to be more accurate or throws ClientException if it does not want to support virtual address to be the
      * same as physical server address.
      * <p>
-     *  The virtual address is used by certain load balancers to filter the servers of the same function 
-     *  to form the server pool. 
-     *  
+     * The virtual address is used by certain load balancers to filter the servers of the same function
+     * to form the server pool.
      */
-    protected  Pair<String, Integer> deriveHostAndPortFromVipAddress(String vipAddress) 
+    protected Pair<String, Integer> deriveHostAndPortFromVipAddress(String vipAddress)
             throws URISyntaxException, ClientException {
         Pair<String, Integer> hostAndPort = new Pair<String, Integer>(null, -1);
         URI uri = new URI(vipAddress);
@@ -437,7 +435,7 @@ public class LoadBalancerContext implements IClientConfigAware {
             return false;
         }
         String[] addresses = vipAddresses.split(",");
-        for (String address: addresses) {
+        for (String address : addresses) {
             if (vipEmbeddedInUri.equalsIgnoreCase(address.trim())) {
                 return true;
             }
@@ -450,7 +448,7 @@ public class LoadBalancerContext implements IClientConfigAware {
      * <ul>
      * <li> if host is missing and there is a load balancer, get the host/port from server chosen from load balancer
      * <li> if host is missing and there is no load balancer, try to derive host/port from virtual address set with the client
-     * <li> if host is present and the authority part of the URI is a virtual address set for the client, 
+     * <li> if host is present and the authority part of the URI is a virtual address set for the client,
      * and there is a load balancer, get the host/port from server chosen from load balancer
      * <li> if host is present but none of the above applies, interpret the host as the actual physical address
      * <li> if host is missing but none of the above applies, throws ClientException
@@ -465,7 +463,7 @@ public class LoadBalancerContext implements IClientConfigAware {
             host = original.getHost();
         }
         if (original != null) {
-            Pair<String, Integer> schemeAndPort = deriveSchemeAndPortFromPartialUri(original);        
+            Pair<String, Integer> schemeAndPort = deriveSchemeAndPortFromPartialUri(original);
             port = schemeAndPort.second();
         }
 
@@ -476,15 +474,15 @@ public class LoadBalancerContext implements IClientConfigAware {
         if (host == null) {
             // Partial URI or no URI Case
             // well we have to just get the right instances from lb - or we fall back
-            if (lb != null){
+            if (lb != null) {
                 Server svc = lb.chooseServer(loadBalancerKey);
-                if (svc == null){
+                if (svc == null) {
                     throw new ClientException(ClientException.ErrorType.GENERAL,
                             "Load balancer does not have available server for client: "
                                     + clientName);
                 }
                 host = svc.getHost();
-                if (host == null){
+                if (host == null) {
                     throw new ClientException(ClientException.ErrorType.GENERAL,
                             "Invalid Server for :" + svc);
                 }
@@ -500,29 +498,29 @@ public class LoadBalancerContext implements IClientConfigAware {
                     throw new ClientException(
                             ClientException.ErrorType.GENERAL,
                             "Method is invoked for client " + clientName + " with partial URI of ("
-                            + original
-                            + ") with no load balancer configured."
-                            + " Also, there are multiple vipAddresses and hence no vip address can be chosen"
-                            + " to complete this partial uri");
+                                    + original
+                                    + ") with no load balancer configured."
+                                    + " Also, there are multiple vipAddresses and hence no vip address can be chosen"
+                                    + " to complete this partial uri");
                 } else if (vipAddresses != null) {
                     try {
-                        Pair<String,Integer> hostAndPort = deriveHostAndPortFromVipAddress(vipAddresses);
+                        Pair<String, Integer> hostAndPort = deriveHostAndPortFromVipAddress(vipAddresses);
                         host = hostAndPort.first();
                         port = hostAndPort.second();
                     } catch (URISyntaxException e) {
                         throw new ClientException(
                                 ClientException.ErrorType.GENERAL,
                                 "Method is invoked for client " + clientName + " with partial URI of ("
-                                + original
-                                + ") with no load balancer configured. "
-                                + " Also, the configured/registered vipAddress is unparseable (to determine host and port)");
+                                        + original
+                                        + ") with no load balancer configured. "
+                                        + " Also, the configured/registered vipAddress is unparseable (to determine host and port)");
                     }
                 } else {
                     throw new ClientException(
                             ClientException.ErrorType.GENERAL,
                             this.clientName
-                            + " has no LoadBalancer registered and passed in a partial URL request (with no host:port)."
-                            + " Also has no vipAddress registered");
+                                    + " has no LoadBalancer registered and passed in a partial URL request (with no host:port)."
+                                    + " Also has no vipAddress registered");
                 }
             }
         } else {
@@ -541,9 +539,9 @@ public class LoadBalancerContext implements IClientConfigAware {
             }
             if (shouldInterpretAsVip) {
                 Server svc = lb.chooseServer(loadBalancerKey);
-                if (svc != null){
+                if (svc != null) {
                     host = svc.getHost();
-                    if (host == null){
+                    if (host == null) {
                         throw new ClientException(ClientException.ErrorType.GENERAL,
                                 "Invalid Server for :" + svc);
                     }
@@ -560,8 +558,8 @@ public class LoadBalancerContext implements IClientConfigAware {
             }
         }
         // end of creating final URL
-        if (host == null){
-            throw new ClientException(ClientException.ErrorType.GENERAL,"Request contains no HOST to talk to");
+        if (host == null) {
+            throw new ClientException(ClientException.ErrorType.GENERAL, "Request contains no HOST to talk to");
         }
         // just verify that at this point we have a full URL
 
@@ -572,10 +570,10 @@ public class LoadBalancerContext implements IClientConfigAware {
         String host = server.getHost();
         int port = server.getPort();
         String scheme = server.getScheme();
-        
-        if (host.equals(original.getHost()) 
+
+        if (host.equals(original.getHost())
                 && port == original.getPort()
-                && scheme == original.getScheme()) {
+                && Objects.equals(scheme, original.getScheme())) {
             return original;
         }
         if (scheme == null) {
@@ -603,7 +601,7 @@ public class LoadBalancerContext implements IClientConfigAware {
                 sb.append("#").append(original.getRawFragment());
             }
             URI newURI = new URI(sb.toString());
-            return newURI;            
+            return newURI;
         } catch (URISyntaxException e) {
             throw new RuntimeException(e);
         }
@@ -620,7 +618,7 @@ public class LoadBalancerContext implements IClientConfigAware {
     public final ServerStats getServerStats(Server server) {
         ServerStats serverStats = null;
         ILoadBalancer lb = this.getLoadBalancer();
-        if (lb instanceof AbstractLoadBalancer){
+        if (lb instanceof AbstractLoadBalancer) {
             LoadBalancerStats lbStats = ((AbstractLoadBalancer) lb).getLoadBalancerStats();
             serverStats = lbStats.getSingleServerStat(server);
         }
@@ -629,8 +627,8 @@ public class LoadBalancerContext implements IClientConfigAware {
     }
 
     protected int getNumberRetriesOnSameServer(IClientConfig overriddenClientConfig) {
-        int numRetries =  maxAutoRetries;
-        if (overriddenClientConfig!=null){
+        int numRetries = maxAutoRetries;
+        if (overriddenClientConfig != null) {
             try {
                 numRetries = overriddenClientConfig.get(CommonClientConfigKey.MaxAutoRetries, maxAutoRetries);
             } catch (Exception e) {
@@ -644,7 +642,7 @@ public class LoadBalancerContext implements IClientConfigAware {
         if (currentRetryCount > maxRetries) {
             return false;
         }
-        logger.debug("Exception while executing request which is deemed retry-able, retrying ..., SAME Server Retry Attempt#: {}",  
+        logger.debug("Exception while executing request which is deemed retry-able, retrying ..., SAME Server Retry Attempt#: {}",
                 currentRetryCount, server);
         return true;
     }

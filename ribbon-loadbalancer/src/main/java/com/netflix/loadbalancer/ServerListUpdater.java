@@ -3,7 +3,7 @@ package com.netflix.loadbalancer;
 /**
  * strategy for {@link com.netflix.loadbalancer.DynamicServerListLoadBalancer} to use for different ways
  * of doing dynamic server list updates.
- *
+ * <p>
  * 服务列表更新器
  *
  * @author David Liu
@@ -13,7 +13,7 @@ public interface ServerListUpdater {
     /**
      * an interface for the updateAction that actually executes a server list update
      */
-    public interface UpdateAction {
+    interface UpdateAction {
         void doUpdate();
     }
 

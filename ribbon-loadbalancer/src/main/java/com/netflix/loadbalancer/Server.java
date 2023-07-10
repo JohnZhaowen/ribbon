@@ -38,24 +38,24 @@ public class Server {
         /**
          * @return the name of application that runs on this server, null if not available
          */
-        public String getAppName();
+        String getAppName();
 
         /**
          * @return the group of the server, for example, auto scaling group ID in AWS.
          * Null if not available
          */
-        public String getServerGroup();
+        String getServerGroup();
 
         /**
          * @return A virtual address used by the server to register with discovery service.
          * Null if not available
          */
-        public String getServiceIdForDiscovery();
+        String getServiceIdForDiscovery();
 
         /**
          * @return ID of the server
          */
-        public String getInstanceId();
+        String getInstanceId();
     }
 
     public static final String UNKNOWN_ZONE = "UNKNOWN";

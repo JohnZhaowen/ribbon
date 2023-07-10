@@ -1,25 +1,21 @@
 /*
-*
-* Copyright 2013 Netflix, Inc.
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-* http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
-*
-*/
+ *
+ * Copyright 2013 Netflix, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
 package com.netflix.niws.loadbalancer;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
 
 import com.netflix.appinfo.InstanceInfo;
 import com.netflix.appinfo.InstanceInfo.InstanceStatus;
@@ -36,17 +32,18 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Provider;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * The server list class that fetches the server information from Eureka client. ServerList is used by
  * {@link DynamicServerListLoadBalancer} to get server list dynamically.
  *
  * @author stonse
- *
+ * <p>
  * 拥有发现功能的服务列表
- *
  */
-public class DiscoveryEnabledNIWSServerList extends AbstractServerList<DiscoveryEnabledServer>{
+public class DiscoveryEnabledNIWSServerList extends AbstractServerList<DiscoveryEnabledServer> {
 
     private static final Logger logger = LoggerFactory.getLogger(DiscoveryEnabledNIWSServerList.class);
 
@@ -75,9 +72,8 @@ public class DiscoveryEnabledNIWSServerList extends AbstractServerList<Discovery
     }
 
     /**
-     * @deprecated
-     * use {@link #DiscoveryEnabledNIWSServerList(String, javax.inject.Provider)}
      * @param vipAddresses
+     * @deprecated use {@link #DiscoveryEnabledNIWSServerList(String, javax.inject.Provider)}
      */
     @Deprecated
     public DiscoveryEnabledNIWSServerList(String vipAddresses) {
@@ -85,9 +81,8 @@ public class DiscoveryEnabledNIWSServerList extends AbstractServerList<Discovery
     }
 
     /**
-     * @deprecated
-     * use {@link #DiscoveryEnabledNIWSServerList(com.netflix.client.config.IClientConfig, javax.inject.Provider)}
      * @param clientConfig
+     * @deprecated use {@link #DiscoveryEnabledNIWSServerList(com.netflix.client.config.IClientConfig, javax.inject.Provider)}
      */
     @Deprecated
     public DiscoveryEnabledNIWSServerList(IClientConfig clientConfig) {
@@ -133,7 +128,7 @@ public class DiscoveryEnabledNIWSServerList extends AbstractServerList<Discovery
                 if (port != null) {
                     overridePort = port;
                     shouldUseOverridePort = true;
-                } else{
+                } else {
                     logger.warn(clientName + " set to force client port but no port is set, so ignoring");
                 }
             }
@@ -141,33 +136,33 @@ public class DiscoveryEnabledNIWSServerList extends AbstractServerList<Discovery
     }
 
     @Override
-    public List<DiscoveryEnabledServer> getInitialListOfServers(){
+    public List<DiscoveryEnabledServer> getInitialListOfServers() {
         return obtainServersViaDiscovery();
     }
 
     @Override
-    public List<DiscoveryEnabledServer> getUpdatedListOfServers(){
+    public List<DiscoveryEnabledServer> getUpdatedListOfServers() {
         return obtainServersViaDiscovery();
     }
 
     private List<DiscoveryEnabledServer> obtainServersViaDiscovery() {
-        List<DiscoveryEnabledServer> serverList = new ArrayList<DiscoveryEnabledServer>();
+        List<DiscoveryEnabledServer> serverList = new ArrayList<>();
 
         if (eurekaClientProvider == null || eurekaClientProvider.get() == null) {
             logger.warn("EurekaClient has not been initialized yet, returning an empty list");
-            return new ArrayList<DiscoveryEnabledServer>();
+            return new ArrayList<>();
         }
 
         EurekaClient eurekaClient = eurekaClientProvider.get();
-        if (vipAddresses!=null){
+        if (vipAddresses != null) {
             for (String vipAddress : vipAddresses.split(",")) {
                 // if targetRegion is null, it will be interpreted as the same region of client
                 List<InstanceInfo> listOfInstanceInfo = eurekaClient.getInstancesByVipAddress(vipAddress, isSecure, targetRegion);
                 for (InstanceInfo ii : listOfInstanceInfo) {
                     if (ii.getStatus().equals(InstanceStatus.UP)) {
 
-                        if(shouldUseOverridePort){
-                            if(logger.isDebugEnabled()){
+                        if (shouldUseOverridePort) {
+                            if (logger.isDebugEnabled()) {
                                 logger.debug("Overriding port on client name: " + clientName + " to " + overridePort);
                             }
 
@@ -176,9 +171,9 @@ public class DiscoveryEnabledNIWSServerList extends AbstractServerList<Discovery
                             // used by other clients in our system
                             InstanceInfo copy = new InstanceInfo(ii);
 
-                            if(isSecure){
+                            if (isSecure) {
                                 ii = new InstanceInfo.Builder(copy).setSecurePort(overridePort).build();
-                            }else{
+                            } else {
                                 ii = new InstanceInfo.Builder(copy).setPort(overridePort).build();
                             }
                         }
@@ -187,7 +182,7 @@ public class DiscoveryEnabledNIWSServerList extends AbstractServerList<Discovery
                         serverList.add(des);
                     }
                 }
-                if (serverList.size()>0 && prioritizeVipAddressBasedServers){
+                if (serverList.size() > 0 && prioritizeVipAddressBasedServers) {
                     break; // if the current vipAddress has servers, we dont use subsequent vipAddress based servers
                 }
             }
@@ -215,7 +210,7 @@ public class DiscoveryEnabledNIWSServerList extends AbstractServerList<Discovery
         this.vipAddresses = vipAddresses;
     }
 
-    public String toString(){
+    public String toString() {
         StringBuilder sb = new StringBuilder("DiscoveryEnabledNIWSServerList:");
         sb.append("; clientName:").append(clientName);
         sb.append("; Effective vipAddresses:").append(vipAddresses);

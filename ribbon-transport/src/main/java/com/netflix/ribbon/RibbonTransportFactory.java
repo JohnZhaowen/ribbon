@@ -30,6 +30,7 @@ import javax.inject.Inject;
  * a name which is used to construct the necessary IClientConfig.
  *
  * Created by awang on 7/18/14.
+ *
  */
 public abstract class RibbonTransportFactory {
     protected final ClientConfigFactory clientConfigFactory;
@@ -71,9 +72,15 @@ public abstract class RibbonTransportFactory {
         return newTcpClient(config);
     }
 
-    public RxClient<DatagramPacket, DatagramPacket> newUdpClient(String name) {
+    /**
+     *
+     * udp协议客户端
+     * @param clientName
+     * @return
+     */
+    public RxClient<DatagramPacket, DatagramPacket> newUdpClient(String clientName) {
         IClientConfig config = clientConfigFactory.newConfig();
-        config.loadProperties(name);
+        config.loadProperties(clientName);
         return newUdpClient(config);
     }
 }

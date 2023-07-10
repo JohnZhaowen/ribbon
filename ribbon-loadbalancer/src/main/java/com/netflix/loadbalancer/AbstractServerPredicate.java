@@ -17,12 +17,6 @@
  */
 package com.netflix.loadbalancer;
 
-import java.util.List;
-import java.util.Random;
-import java.util.concurrent.atomic.AtomicInteger;
-
-import javax.annotation.Nullable;
-
 import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableList;
@@ -30,30 +24,35 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.netflix.client.config.IClientConfig;
 
+import javax.annotation.Nullable;
+import java.util.List;
+import java.util.Random;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
+
 /**
  * A basic building block for server filtering logic which can be used in rules and server list filters.
  * The input object of the predicate is {@link PredicateKey}, which has Server and load balancer key
  * information. Therefore, it is possible to develop logic to filter servers by both Server and load balancer
  * key or either one of them.
- *
+ * <p>
  * 抽象类
- * 
- * @author awang
  *
+ * @author awang
  */
 public abstract class AbstractServerPredicate implements Predicate<PredicateKey> {
-    
+
     protected IRule rule;
     private volatile LoadBalancerStats lbStats;
-    
+
     private final Random random = new Random();
-    
+
     private final AtomicInteger nextIndex = new AtomicInteger();
 
     private final Predicate<Server> serverOnlyPredicate = input -> AbstractServerPredicate.this.apply(new PredicateKey(input));
 
     public static AbstractServerPredicate alwaysTrue() {
-        return new AbstractServerPredicate() {        
+        return new AbstractServerPredicate() {
             @Override
             public boolean apply(@Nullable PredicateKey input) {
                 return true;
@@ -62,9 +61,9 @@ public abstract class AbstractServerPredicate implements Predicate<PredicateKey>
     }
 
     public AbstractServerPredicate() {
-        
+
     }
-    
+
     public AbstractServerPredicate(IRule rule) {
         this.rule = rule;
     }
@@ -89,7 +88,7 @@ public abstract class AbstractServerPredicate implements Predicate<PredicateKey>
         } else if (rule != null) {
             ILoadBalancer lb = rule.getLoadBalancer();
             if (lb instanceof AbstractLoadBalancer) {
-                LoadBalancerStats stats =  ((AbstractLoadBalancer) lb).getLoadBalancerStats();
+                LoadBalancerStats stats = ((AbstractLoadBalancer) lb).getLoadBalancerStats();
                 setLoadBalancerStats(stats);
                 return stats;
             } else {
@@ -99,11 +98,11 @@ public abstract class AbstractServerPredicate implements Predicate<PredicateKey>
             return null;
         }
     }
-    
+
     public void setLoadBalancerStats(LoadBalancerStats stats) {
         this.lbStats = stats;
     }
-    
+
     /**
      * Get the predicate to filter list of servers. The load balancer key is treated as null
      * as the input of this predicate.
@@ -111,32 +110,31 @@ public abstract class AbstractServerPredicate implements Predicate<PredicateKey>
     public Predicate<Server> getServerOnlyPredicate() {
         return serverOnlyPredicate;
     }
-    
+
     /**
      * Get servers filtered by this predicate from list of servers. Load balancer key
-     * is presumed to be null. 
-     * 
+     * is presumed to be null.
+     *
      * @see #getEligibleServers(List, Object)
-     * 
      */
     public List<Server> getEligibleServers(List<Server> servers) {
         return getEligibleServers(servers, null);
     }
- 
+
     /**
-     * Get servers filtered by this predicate from list of servers. 
+     * Get servers filtered by this predicate from list of servers.
      */
     public List<Server> getEligibleServers(List<Server> servers, Object loadBalancerKey) {
         if (loadBalancerKey == null) {
-            return ImmutableList.copyOf(Iterables.filter(servers, this.getServerOnlyPredicate()));            
+            return ImmutableList.copyOf(servers.stream().filter(this.getServerOnlyPredicate()::apply).collect(Collectors.toList()));
         } else {
             List<Server> results = Lists.newArrayList();
-            for (Server server: servers) {
+            for (Server server : servers) {
                 if (this.apply(new PredicateKey(loadBalancerKey, server))) {
                     results.add(server);
                 }
             }
-            return results;            
+            return results;
         }
     }
 
@@ -148,18 +146,17 @@ public abstract class AbstractServerPredicate implements Predicate<PredicateKey>
      * @return The next value.
      */
     private int incrementAndGetModulo(int modulo) {
-        for (;;) {
+        for (; ; ) {
             int current = nextIndex.get();
             int next = (current + 1) % modulo;
             if (nextIndex.compareAndSet(current, next) && current < modulo)
                 return current;
         }
     }
-    
+
     /**
-     * Choose a random server after the predicate filters a list of servers. Load balancer key 
+     * Choose a random server after the predicate filters a list of servers. Load balancer key
      * is presumed to be null.
-     *  
      */
     public Optional<Server> chooseRandomlyAfterFiltering(List<Server> servers) {
         List<Server> eligible = getEligibleServers(servers);
@@ -168,9 +165,9 @@ public abstract class AbstractServerPredicate implements Predicate<PredicateKey>
         }
         return Optional.of(eligible.get(random.nextInt(eligible.size())));
     }
-    
+
     /**
-     * Choose a server in a round robin fashion after the predicate filters a list of servers. Load balancer key 
+     * Choose a server in a round robin fashion after the predicate filters a list of servers. Load balancer key
      * is presumed to be null.
      */
     public Optional<Server> chooseRoundRobinAfterFiltering(List<Server> servers) {
@@ -180,11 +177,10 @@ public abstract class AbstractServerPredicate implements Predicate<PredicateKey>
         }
         return Optional.of(eligible.get(incrementAndGetModulo(eligible.size())));
     }
-    
+
     /**
      * Choose a random server after the predicate filters list of servers given list of servers and
-     * load balancer key. 
-     *  
+     * load balancer key.
      */
     public Optional<Server> chooseRandomlyAfterFiltering(List<Server> servers, Object loadBalancerKey) {
         List<Server> eligible = getEligibleServers(servers, loadBalancerKey);
@@ -193,9 +189,9 @@ public abstract class AbstractServerPredicate implements Predicate<PredicateKey>
         }
         return Optional.of(eligible.get(random.nextInt(eligible.size())));
     }
-    
+
     /**
-     * Choose a server in a round robin fashion after the predicate filters a given list of servers and load balancer key. 
+     * Choose a server in a round robin fashion after the predicate filters a given list of servers and load balancer key.
      */
     public Optional<Server> chooseRoundRobinAfterFiltering(List<Server> servers, Object loadBalancerKey) {
         List<Server> eligible = getEligibleServers(servers, loadBalancerKey);
@@ -204,7 +200,7 @@ public abstract class AbstractServerPredicate implements Predicate<PredicateKey>
         }
         return Optional.of(eligible.get(incrementAndGetModulo(eligible.size())));
     }
-        
+
     /**
      * Create an instance from a predicate.
      */
@@ -214,10 +210,10 @@ public abstract class AbstractServerPredicate implements Predicate<PredicateKey>
             @edu.umd.cs.findbugs.annotations.SuppressWarnings(value = "NP")
             public boolean apply(PredicateKey input) {
                 return p.apply(input);
-            }            
-        };        
+            }
+        };
     }
-    
+
     /**
      * Create an instance from a predicate.
      */
@@ -227,7 +223,7 @@ public abstract class AbstractServerPredicate implements Predicate<PredicateKey>
             @edu.umd.cs.findbugs.annotations.SuppressWarnings(value = "NP")
             public boolean apply(PredicateKey input) {
                 return p.apply(input.getServer());
-            }            
-        };        
+            }
+        };
     }
 }
